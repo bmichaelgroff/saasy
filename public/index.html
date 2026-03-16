@@ -327,7 +327,13 @@
     }
     .meta-dot { color: var(--border); }
 
-    .sections-grid { display: flex; flex-direction: column; gap: 12px; }
+    .sections-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .full-width { grid-column: 1 / -1; }
 
     /* ── GRADE CARD ── */
     .grade-card {
@@ -595,7 +601,7 @@ const SECTION_DEFS = [
   { key: "visualDesign",         title: "Visual Design & Layout"   },
   { key: "conversionFriction",   title: "Conversion Friction"      },
   { key: "mobileOpt",            title: "Mobile Optimization"      },
-  { key: "abTesting",            title: "A/B Test Recommendations" },
+  // abTesting rendered separately alongside Action Items
 ];
 
 const LOADING_MESSAGES = [
@@ -837,10 +843,10 @@ function renderAuditView(audit) {
     <div class="sections-grid">
   `;
 
-  // 1. GRADE CARD
+  // 1. GRADE — full width
   if (sections.grade) {
     html += `
-      <div class="grade-card ${gc}">
+      <div class="grade-card ${gc} full-width">
         <div class="grade-top">
           <div class="grade-left">
             <div class="grade-label">Overall Grade</div>
@@ -857,15 +863,7 @@ function renderAuditView(audit) {
     `;
   }
 
-  // 2. ANALYTICS — use detected tools if available, fall back to text
-  if (sections.analyticsTools) {
-    html += renderAnalyticsCard(sections.analyticsTools);
-  } else if (sections.analytics) {
-    const v = extractVerdict(sections.analytics);
-    html += sectionCard("Analytics & Tracking", sections.analytics, v, analyticsIcon());
-  }
-
-  // 3. ACTION ITEMS
+  // 2. ACTION ITEMS (left) + A/B TESTING (right) — side by side
   if (sections.actions?.length > 0) {
     const checkedItems = new Set(sections.checkedItems || []);
     html += `
@@ -893,7 +891,19 @@ function renderAuditView(audit) {
     `;
   }
 
-  // 4+. REMAINING SECTIONS
+  if (sections.abTesting) {
+    html += sectionCard("A/B Test Recommendations", sections.abTesting, "pass", abTestIcon());
+  }
+
+  // 3. ANALYTICS — full width
+  if (sections.analyticsTools) {
+    html += `<div class="full-width">${renderAnalyticsCard(sections.analyticsTools)}</div>`;
+  } else if (sections.analytics) {
+    const v = extractVerdict(sections.analytics);
+    html += `<div class="full-width">${sectionCard("Analytics & Tracking", sections.analytics, v, analyticsIcon())}</div>`;
+  }
+
+  // 4+. REMAINING SECTIONS — 2-column grid
   for (const def of SECTION_DEFS) {
     const text = sections[def.key];
     if (!text) continue;
@@ -934,6 +944,11 @@ function defaultIcon() {
 function analyticsIcon() {
   return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+  </svg>`;
+}
+function abTestIcon() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 21V8l8-6 8 6v13"/><path d="M9 21v-6h6v6"/>
   </svg>`;
 }
 
