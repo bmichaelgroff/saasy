@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saasy — Website CRO Auditor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── BETA MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      opacity: 0;
+      animation: fade-in 0.2s ease forwards;
+    }
+
+    @keyframes fade-in { to { opacity: 1; } }
+
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px 32px 28px;
+      max-width: 380px;
+      width: calc(100% - 40px);
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      transform: translateY(8px);
+      animation: slide-up 0.22s ease forwards;
+    }
+
+    @keyframes slide-up { to { transform: translateY(0); } }
+
+    .modal img {
+      height: 36px;
+      width: auto;
+      margin-bottom: 20px;
+    }
+
+    .modal h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .modal p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .modal button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 28px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s;
+    }
+
+    .modal button:hover { background: var(--primary-hover); }
+
+    :root {
+      --primary: #110fd6;
+      --primary-hover: #0d0bb8;
+      --primary-light: #ebebfd;
+      --primary-mid: #c7c6f7;
+      --bg: #f4f5f9;
+      --surface: #ffffff;
+      --border: #e2e4ec;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --success-border: #a7f3d0;
+      --fail-bg: #fef2f2;
+      --fail-text: #991b1b;
+      --fail-border: #fecaca;
+      --sidebar-w: 260px;
+      --radius: 10px;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar-brand {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-brand img {
+      height: 32px;
+      width: auto;
+      display: block;
+    }
+
+    .sidebar-new-btn {
+      margin: 14px 14px 8px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 9px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: calc(100% - 28px);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+
+    .sidebar-new-btn:hover { background: var(--primary-hover); }
+
+    .sidebar-new-btn .plus {
+      font-size: 1.1rem;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .sidebar-section-label {
+      padding: 12px 18px 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .sidebar-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 8px 16px;
+    }
+
+    .sidebar-list::-webkit-scrollbar { width: 4px; }
+    .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .sidebar-item {
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.12s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 2px;
+    }
+
+    .sidebar-item:hover { background: var(--bg); }
+    .sidebar-item.active { background: var(--primary-light); }
+
+    .sidebar-item .si-url {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-item.active .si-url { color: var(--primary); }
+
+    .sidebar-item .si-date {
+      font-size: 0.72rem;
+      color: var(--text-faint);
+    }
+
+    .sidebar-empty {
+      padding: 12px 18px;
+      font-size: 0.82rem;
+      color: var(--text-faint);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* URL bar */
+    .url-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .url-bar input {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .url-bar input:focus { border-color: var(--primary); background: #fff; }
+    .url-bar input::placeholder { color: var(--text-faint); }
+
+    .url-bar button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 9px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .url-bar button:hover:not(:disabled) { background: var(--primary-hover); }
+    .url-bar button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* Content area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px 48px;
+    }
+
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Empty state */
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-faint);
+    }
+
+    .empty-state .empty-icon {
+      width: 52px;
+      height: 52px;
+      background: var(--primary-light);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .empty-state .empty-icon svg { width: 26px; height: 26px; }
+
+    .empty-state h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .empty-state p {
+      font-size: 0.85rem;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    /* Loading state */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 16px;
+    }
+
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--primary-mid);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .loading-status {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Audit sections */
+    .audit-header {
+      margin-bottom: 24px;
+    }
+
+    .audit-header h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .audit-header .audit-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .audit-header .audit-url {
+      color: var(--primary);
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .sections-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-icon.blue { background: var(--primary-light); }
+    .card-icon.blue svg { color: var(--primary); }
+    .card-icon.green { background: #ecfdf5; }
+    .card-icon.green svg { color: #059669; }
+    .card-icon.orange { background: #fff7ed; }
+    .card-icon.orange svg { color: #c2410c; }
+
+    .card-icon svg { width: 15px; height: 15px; }
+
+    .card-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .verdict-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .verdict-pass {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .verdict-fail {
+      background: var(--fail-bg);
+      color: var(--fail-text);
+      border: 1px solid var(--fail-border);
+    }
+
+    .verdict-value {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .verdict-not-value {
+      background: var(--fail-bg);
+      color: var(--fail-text);
+      border: 1px solid var(--fail-border);
+    }
+
+    .card-body {
+      padding: 18px 20px;
+      font-size: 0.875rem;
+      line-height: 1.75;
+      color: #374151;
+    }
+
+    /* Action items */
+    .action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+
+    .action-item:last-child { border-bottom: none; }
+    .action-item:hover { background: var(--bg); }
+    .action-item.done { background: #fafafa; }
+
+    .action-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 1px;
+      position: relative;
+      transition: all 0.15s;
+      background: #fff;
+    }
+
+    .action-item input[type="checkbox"]:checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .action-item input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 5px;
+      height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .action-item .action-text {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.5;
+      transition: color 0.15s;
+      user-select: none;
+    }
+
+    .action-item.done .action-text {
+      color: var(--text-faint);
+      text-decoration: line-through;
+    }
+
+    /* Content text formatting */
+    .card-body p { margin-bottom: 10px; }
+    .card-body p:last-child { margin-bottom: 0; }
+
+    .card-body .cb-bold { font-weight: 600; color: var(--text); }
+
+    .card-body .cta-tag {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--primary-mid);
+      border-radius: 5px;
+      padding: 1px 7px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin: 1px 2px;
+    }
+
+    .card-body blockquote {
+      border-left: 3px solid var(--primary-mid);
+      padding: 6px 12px;
+      margin: 8px 0;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Error */
+    .error-card {
+      background: var(--fail-bg);
+      border: 1px solid var(--fail-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      color: var(--fail-text);
+      font-size: 0.88rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .error-card svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      height: 3px;
+      background: var(--primary-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      animation: progress-indeterminate 1.4s ease-in-out infinite;
+    }
+
+    @keyframes progress-indeterminate {
+      0% { width: 0%; margin-left: 0%; }
+      50% { width: 60%; margin-left: 20%; }
+      100% { width: 0%; margin-left: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── BETA MODAL ── -->
+<div class="modal-overlay" id="betaModal" style="display:none">
+  <div class="modal">
+    <img src="/saasy-logo-v2.png" alt="Saasy" />
+    <h2>Welcome to Saasy</h2>
+    <p>Saasy is currently in beta. Results may vary.</p>
+    <button onclick="dismissModal()">Got it</button>
+  </div>
+</div>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="/saasy-logo-v2.png" alt="Saasy" />
+  </div>
+
+  <button class="sidebar-new-btn" id="newAuditBtn">
+    <span class="plus">+</span> New Audit
+  </button>
+
+  <div class="sidebar-section-label" id="historyLabel" style="display:none">Audit History</div>
+  <div class="sidebar-list" id="sidebarList">
+    <div class="sidebar-empty" id="sidebarEmpty">No audits yet.</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <!-- URL bar -->
+  <div class="url-bar">
+    <input type="url" id="urlInput" placeholder="https://yourbusiness.com" autocomplete="off" />
+    <button id="auditBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      Audit Site
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content">
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+      </div>
+      <h2>Audit your website</h2>
+      <p>Enter a business URL above to analyze CTAs and copy effectiveness.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const STORAGE_KEY = "webaudit_v2";
+let audits = [];
+let currentId = null;
+
+function loadAudits() {
+  try { audits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { audits = []; }
+}
+
+function saveAudits() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(audits));
+}
+
+// ── DOM refs ──
+const urlInput = document.getElementById("urlInput");
+const auditBtn = document.getElementById("auditBtn");
+const content = document.getElementById("content");
+const emptyState = document.getElementById("emptyState");
+const sidebarList = document.getElementById("sidebarList");
+const sidebarEmpty = document.getElementById("sidebarEmpty");
+const historyLabel = document.getElementById("historyLabel");
+const newAuditBtn = document.getElementById("newAuditBtn");
+
+// ── Sidebar ──
+function renderSidebar() {
+  const hasAudits = audits.length > 0;
+  sidebarEmpty.style.display = hasAudits ? "none" : "block";
+  historyLabel.style.display = hasAudits ? "block" : "none";
+
+  // Remove existing sidebar items
+  sidebarList.querySelectorAll(".sidebar-item").forEach(el => el.remove());
+
+  audits.forEach(audit => {
+    const el = document.createElement("div");
+    el.className = "sidebar-item" + (audit.id === currentId ? " active" : "");
+    el.dataset.id = audit.id;
+
+    const urlDisplay = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    const date = new Date(audit.id).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+    el.innerHTML = `<span class="si-url">${urlDisplay}</span><span class="si-date">${date}</span>`;
+    el.addEventListener("click", () => showAudit(audit.id));
+    sidebarList.appendChild(el);
+  });
+}
+
+// ── Parse sections from raw text ──
+function parseSections(raw) {
+  const get = (tag) => {
+    const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, "i"));
+    return m ? m[1].trim() : null;
+  };
+
+  const actionsRaw = get("ACTIONS");
+  const actions = actionsRaw
+    ? actionsRaw.split("\n")
+        .map(l => l.trim())
+        .filter(l => l.startsWith("-") || l.match(/^\d+\./))
+        .map(l => l.replace(/^[-\d.]+\s*/, "").trim())
+        .filter(Boolean)
+    : [];
+
+  return {
+    actions,
+    ctaAudit: get("CTA_AUDIT"),
+    copyEffectiveness: get("COPY_EFFECTIVENESS"),
+  };
+}
+
+// ── Extract verdict from section text ──
+function extractVerdict(text, type) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  if (type === "cta") {
+    if (lower.includes("verdict: pass") || lower.match(/verdict[:\s]+pass/i)) return "pass";
+    if (lower.includes("verdict: fail") || lower.match(/verdict[:\s]+fail/i)) return "fail";
+    // Fallback scan
+    if (lower.includes("✅") || lower.includes("pass")) return "pass";
+    if (lower.includes("❌") || lower.includes("fail")) return "fail";
+  }
+  if (type === "copy") {
+    if (lower.match(/verdict[:\s]+not value[- ]driven/i) || lower.match(/not value[- ]driven/i)) return "not-value";
+    if (lower.match(/verdict[:\s]+value[- ]driven/i) || lower.includes("value-driven")) return "value";
+  }
+  return null;
+}
+
+// ── Format section text to HTML ──
+function formatText(text) {
+  if (!text) return "";
+
+  const lines = text.split("\n");
+  let html = "";
+  let inList = false;
+
+  for (const raw of lines) {
+    let line = raw.trim();
+    if (!line) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += '<div style="height:6px"></div>';
+      continue;
+    }
+
+    // Remove verdict lines (shown in badge)
+    if (line.match(/^Verdict[:\s]/i)) continue;
+
+    // Bullet / list
+    if (line.match(/^[-•*]\s+/) || line.match(/^\d+\.\s+/)) {
+      if (!inList) { html += '<ul style="padding-left:18px;margin:4px 0">'; inList = true; }
+
+      let item = line.replace(/^[-•*]\s+/, "").replace(/^\d+\.\s+/, "");
+      item = formatInline(item);
+
+      // Detect quoted copy (in quotes)
+      if (item.match(/^[""]|^".*"$/)) {
+        item = `<blockquote>${item.replace(/"/g, "").replace(/"/g, "")}</blockquote>`;
+        if (inList) { html += "</ul>"; inList = false; }
+        html += item;
+        continue;
+      }
+      html += `<li style="margin-bottom:4px">${item}</li>`;
+      continue;
+    }
+
+    if (inList) { html += "</ul>"; inList = false; }
+
+    // Section sub-headers (bold lines)
+    if (line.match(/^\*\*[^*]+\*\*$/) || line.match(/^[A-Z][A-Z\s]+:$/)) {
+      html += `<p style="margin:10px 0 4px"><strong>${line.replace(/\*\*/g, "")}</strong></p>`;
+      continue;
+    }
+
+    // Blockquote (line in quotes)
+    if (line.match(/^[""][^""]{5,}[""]/)) {
+      html += `<blockquote>${line.replace(/[""]/g, "")}</blockquote>`;
+      continue;
+    }
+
+    // CTA tag detection (short phrases in quotes or angle brackets)
+    line = line.replace(/"([^"]{3,30})"/g, (_, cta) => {
+      // Only convert short CTA-like phrases
+      if (cta.split(" ").length <= 5 && /^[A-Z]/.test(cta)) {
+        return `<span class="cta-tag">${cta}</span>`;
+      }
+      return `"${cta}"`;
+    });
+
+    html += `<p>${formatInline(line)}</p>`;
+  }
+
+  if (inList) html += "</ul>";
+  return html;
+}
+
+function formatInline(text) {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '<span class="cb-bold">$1</span>')
+    .replace(/`([^`]+)`/g, '<code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:0.82em">$1</code>');
+}
+
+// ── Render audit sections ──
+function renderAuditView(audit) {
+  const { url, sections, id } = audit;
+  const { actions, ctaAudit, copyEffectiveness } = sections;
+
+  const ctaVerdict = extractVerdict(ctaAudit, "cta");
+  const copyVerdict = extractVerdict(copyEffectiveness, "copy");
+
+  const urlDisplay = url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const dateStr = new Date(id).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" });
+
+  let html = `
+    <div class="audit-header">
+      <h1>Website Audit</h1>
+      <div class="audit-meta">
+        <span class="audit-url">${urlDisplay}</span>
+        <span>·</span>
+        <span>${dateStr}</span>
+      </div>
+    </div>
+    <div class="sections-grid">
+  `;
+
+  // Action Items
+  if (actions.length > 0) {
+    const checkedItems = new Set(sections.checkedItems || []);
+    html += `
+      <div class="card" id="card-actions">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+              </svg>
+            </div>
+            <span class="card-title">Action Items</span>
+          </div>
+          <span style="font-size:0.78rem;color:var(--text-faint)">${actions.length} item${actions.length !== 1 ? "s" : ""}</span>
+        </div>
+        <div class="action-list">
+          ${actions.map((item, i) => `
+            <label class="action-item${checkedItems.has(i) ? " done" : ""}" data-idx="${i}" data-audit-id="${id}">
+              <input type="checkbox" ${checkedItems.has(i) ? "checked" : ""} onchange="toggleCheck(${id}, ${i}, this)" />
+              <span class="action-text">${item}</span>
+            </label>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  // CTA Audit
+  const ctaBadge = ctaVerdict === "pass"
+    ? '<span class="verdict-badge verdict-pass">Pass</span>'
+    : ctaVerdict === "fail"
+    ? '<span class="verdict-badge verdict-fail">Fail</span>'
+    : "";
+
+  html += `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-row">
+          <div class="card-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
+            </svg>
+          </div>
+          <span class="card-title">CTA Audit</span>
+        </div>
+        ${ctaBadge}
+      </div>
+      <div class="card-body">${formatText(ctaAudit || "No CTA data found.")}</div>
+    </div>
+  `;
+
+  // Copy Effectiveness
+  const copyBadge = copyVerdict === "value"
+    ? '<span class="verdict-badge verdict-value">Value-Driven</span>'
+    : copyVerdict === "not-value"
+    ? '<span class="verdict-badge verdict-not-value">Not Value-Driven</span>'
+    : "";
+
+  html += `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-row">
+          <div class="card-icon orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+          <span class="card-title">Copy Effectiveness</span>
+        </div>
+        ${copyBadge}
+      </div>
+      <div class="card-body">${formatText(copyEffectiveness || "No copy analysis found.")}</div>
+    </div>
+  `;
+
+  html += `</div>`;
+  content.innerHTML = html;
+}
+
+// ── Toggle action item checkbox ──
+function toggleCheck(auditId, index, checkbox) {
+  const audit = audits.find(a => a.id === auditId);
+  if (!audit) return;
+
+  const checked = new Set(audit.sections.checkedItems || []);
+  if (checkbox.checked) checked.add(index);
+  else checked.delete(index);
+  audit.sections.checkedItems = [...checked];
+  saveAudits();
+
+  // Update the label class
+  const label = checkbox.closest(".action-item");
+  if (label) label.classList.toggle("done", checkbox.checked);
+}
+
+// ── Show an existing audit ──
+function showAudit(id) {
+  const audit = audits.find(a => a.id === id);
+  if (!audit) return;
+  currentId = id;
+  renderAuditView(audit);
+  renderSidebar();
+}
+
+// ── Show loading state ──
+function showLoading(statusMsg) {
+  content.innerHTML = `
+    <div class="loading-state">
+      <div class="progress-bar-wrap" style="width:240px;border-radius:2px">
+        <div class="progress-bar-fill"></div>
+      </div>
+      <div class="loading-status" id="loadingStatus">${statusMsg}</div>
+    </div>
+  `;
+}
+
+function updateLoadingStatus(msg) {
+  const el = document.getElementById("loadingStatus");
+  if (el) el.textContent = msg;
+}
+
+// ── Show error ──
+function showError(msg) {
+  content.innerHTML = `
+    <div class="error-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div>${msg}</div>
+    </div>
+  `;
+}
+
+// ── Run audit ──
+async function runAudit() {
+  const url = urlInput.value.trim();
+  if (!url) { urlInput.focus(); return; }
+
+  auditBtn.disabled = true;
+  showLoading("Connecting...");
+
+  const response = await fetch("/audit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) {
+    auditBtn.disabled = false;
+    showError("Server error. Please try again.");
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let streamBuf = "";
+  let rawText = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      streamBuf += decoder.decode(value, { stream: true });
+      const lines = streamBuf.split("\n");
+      streamBuf = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        let event;
+        try { event = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (event.type === "status") {
+          updateLoadingStatus(event.message);
+        } else if (event.type === "chunk") {
+          rawText += event.text;
+        } else if (event.type === "done") {
+          const sections = parseSections(rawText);
+          const id = Date.now();
+          const audit = { id, url, sections };
+
+          // Prepend to audits list
+          audits.unshift(audit);
+          if (audits.length > 50) audits = audits.slice(0, 50);
+          saveAudits();
+
+          currentId = id;
+          renderAuditView(audit);
+          renderSidebar();
+        } else if (event.type === "error") {
+          showError(event.message);
+        }
+      }
+    }
+  } finally {
+    auditBtn.disabled = false;
+  }
+}
+
+// ── New audit (clear form) ──
+newAuditBtn.addEventListener("click", () => {
+  currentId = null;
+  urlInput.value = "";
+  urlInput.focus();
+  content.innerHTML = document.getElementById("emptyState") ? "" : "";
+  // Re-inject empty state
+  content.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+      </div>
+      <h2>Audit your website</h2>
+      <p>Enter a business URL above to analyze CTAs and copy effectiveness.</p>
+    </div>
+  `;
+  renderSidebar();
+});
+
+auditBtn.addEventListener("click", runAudit);
+urlInput.addEventListener("keydown", e => { if (e.key === "Enter") runAudit(); });
+
+// ── Beta modal ──
+function dismissModal() {
+  document.getElementById("betaModal").style.display = "none";
+  localStorage.setItem("saasy_beta_seen", "1");
+}
+
+// ── Init ──
+loadAudits();
+renderSidebar();
+
+if (!localStorage.getItem("saasy_beta_seen")) {
+  document.getElementById("betaModal").style.display = "flex";
+}
+
+// Show most recent audit on load if available
+if (audits.length > 0) {
+  showAudit(audits[0].id);
+}
+</script>
+</body>
+</html>
