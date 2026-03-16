@@ -10,6 +10,28 @@ const client = new Anthropic.Anthropic();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+const ANALYTICS_TOOLS = [
+  { name: "Google Analytics 4", patterns: [/gtag\.js/i, /G-[A-Z0-9]{6,}/i, /google-analytics\.com\/g\//i] },
+  { name: "Google Tag Manager", patterns: [/googletagmanager\.com\/gtm\.js/i, /GTM-[A-Z0-9]+/i] },
+  { name: "Microsoft Clarity",  patterns: [/clarity\.ms/i, /microsoft\.com\/clarity/i] },
+  { name: "Amplitude",          patterns: [/cdn\.amplitude\.com/i, /amplitude\.js/i, /amplitude\.getInstance/i] },
+  { name: "VWO",                patterns: [/visualwebsiteoptimizer\.com/i, /vwo\.com/i, /vwoCode/i] },
+  { name: "Mida.so",            patterns: [/mida\.so/i] },
+  { name: "Statsig",            patterns: [/statsig\.com/i, /statsig\.io/i] },
+];
+
+function detectAnalytics(html) {
+  // Only check <head> and the last 2000 chars before </body>
+  const headMatch = html.match(/<head[\s\S]*?<\/head>/i);
+  const bodyEnd   = html.slice(-2000);
+  const scope     = (headMatch ? headMatch[0] : "") + bodyEnd;
+
+  return ANALYTICS_TOOLS.map(tool => ({
+    name: tool.name,
+    detected: tool.patterns.some(p => p.test(scope)),
+  }));
+}
+
 app.post("/audit", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "URL is required" });
@@ -39,6 +61,10 @@ app.post("/audit", async (req, res) => {
       send({ type: "error", message: `Could not fetch the URL: ${fetchErr.message}` });
       return res.end();
     }
+
+    // Detect analytics tools from raw HTML before stripping
+    const analyticsTools = detectAnalytics(html);
+    send({ type: "analytics_data", tools: analyticsTools });
 
     const stripped = html
       .replace(/<script[\s\S]*?<\/script>/gi, "")

@@ -29,7 +29,6 @@
       --radius-lg: 12px;
       --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
     }
 
     html, body { height: 100%; }
@@ -225,7 +224,7 @@
       flex-shrink: 0;
     }
     .url-bar-inner {
-      flex: 1; display: flex; align-items: center; gap: 0;
+      flex: 1; display: flex; align-items: center;
       background: var(--bg); border: 1.5px solid var(--border);
       border-radius: var(--radius); overflow: hidden;
       transition: border-color 0.15s, box-shadow 0.15s;
@@ -264,7 +263,7 @@
     .content::-webkit-scrollbar { width: 5px; }
     .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-    /* Empty state */
+    /* ── EMPTY STATE ── */
     .empty-state {
       height: 100%; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -281,26 +280,39 @@
     .empty-state h2 { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); letter-spacing: -0.01em; }
     .empty-state p { font-size: 0.825rem; max-width: 280px; line-height: 1.6; color: var(--text-faint); }
 
-    /* Loading */
+    /* ── LOADING ── */
     .loading-state {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      height: 100%; gap: 14px; padding-bottom: 60px;
+      height: 100%; gap: 10px; padding-bottom: 60px;
     }
-    .loading-spinner {
-      width: 32px; height: 32px;
-      border: 2.5px solid var(--primary-mid);
-      border-top-color: var(--primary);
-      border-radius: 50%; animation: spin 0.65s linear infinite;
+    .loading-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-faint);
+      margin-bottom: 2px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-status { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-    .progress-bar-wrap { height: 2px; background: var(--primary-light); overflow: hidden; border-radius: 2px; width: 200px; }
-    .progress-bar-fill { height: 100%; background: var(--primary); animation: progress-ind 1.4s ease-in-out infinite; }
-    @keyframes progress-ind {
-      0%   { width: 0%;  margin-left: 0%; }
-      50%  { width: 60%; margin-left: 20%; }
-      100% { width: 0%;  margin-left: 100%; }
+    .loading-bar-row {
+      display: flex; align-items: center; gap: 10px; width: 340px; max-width: 90vw;
+    }
+    .loading-bar-wrap {
+      flex: 1; height: 5px;
+      background: var(--primary-light);
+      border-radius: 99px; overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%; background: var(--primary);
+      border-radius: 99px;
+      width: 0%; transition: width 0.25s ease;
+    }
+    .loading-percent {
+      font-size: 0.8rem; font-weight: 700;
+      color: var(--primary); min-width: 34px; text-align: right;
+    }
+    .loading-message {
+      font-size: 0.85rem; color: var(--text-muted);
+      text-align: center; max-width: 320px; line-height: 1.5;
+      transition: opacity 0.3s ease;
+      min-height: 1.3em;
     }
 
     /* ── AUDIT HEADER ── */
@@ -344,19 +356,17 @@
     }
     .grade-section-count { font-size: 0.75rem; font-weight: 500; opacity: 0.6; }
 
-    .grade-card.poor      .grade-score-pill, .grade-card.poor      .grade-section-count { background: rgba(220,38,38,0.1); color: #dc2626; }
-    .grade-card.ok        .grade-score-pill, .grade-card.ok        .grade-section-count { background: rgba(146,64,14,0.1);  color: #92400e; }
-    .grade-card.good      .grade-score-pill, .grade-card.good      .grade-section-count { background: rgba(17,15,214,0.1);  color: var(--primary); }
-    .grade-card.excellent .grade-score-pill, .grade-card.excellent .grade-section-count { background: rgba(5,150,105,0.1);  color: #059669; }
-    .grade-card.poor      .grade-section-count { background: transparent; }
-    .grade-card.ok        .grade-section-count { background: transparent; }
-    .grade-card.good      .grade-section-count { background: transparent; }
-    .grade-card.excellent .grade-section-count { background: transparent; }
+    .grade-card.poor      .grade-score-pill { background: rgba(220,38,38,0.1); color: #dc2626; }
+    .grade-card.ok        .grade-score-pill { background: rgba(146,64,14,0.1);  color: #92400e; }
+    .grade-card.good      .grade-score-pill { background: rgba(17,15,214,0.1);  color: var(--primary); }
+    .grade-card.excellent .grade-score-pill { background: rgba(5,150,105,0.1);  color: #059669; }
 
-    .grade-divider {
-      height: 1px; margin: 0 0 14px;
-      opacity: 0.25;
-    }
+    .grade-card.poor      .grade-section-count { color: #dc2626; }
+    .grade-card.ok        .grade-section-count { color: #92400e; }
+    .grade-card.good      .grade-section-count { color: var(--primary); }
+    .grade-card.excellent .grade-section-count { color: #059669; }
+
+    .grade-divider { height: 1px; margin: 0 0 14px; opacity: 0.2; }
     .grade-card.poor      .grade-divider { background: #dc2626; }
     .grade-card.ok        .grade-divider { background: #92400e; }
     .grade-card.good      .grade-divider { background: var(--primary); }
@@ -383,13 +393,6 @@
     }
     .card-title-row { display: flex; align-items: center; gap: 9px; }
 
-    .card-num {
-      min-width: 22px; height: 22px; border-radius: 6px;
-      background: var(--primary-light); color: var(--primary);
-      font-size: 0.66rem; font-weight: 700; display: flex;
-      align-items: center; justify-content: center; flex-shrink: 0;
-      border: 1px solid var(--primary-border);
-    }
     .card-icon {
       width: 26px; height: 26px; border-radius: 7px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -437,6 +440,35 @@
       border-radius: 5px; padding: 1px 7px;
       font-size: 0.76rem; font-weight: 600; margin: 1px 2px;
     }
+
+    /* ── ANALYTICS TOOL LIST ── */
+    .analytics-grid {
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .analytics-tool {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg);
+    }
+    .analytics-tool-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .analytics-tool-icon.detected  { background: #ecfdf5; }
+    .analytics-tool-icon.missing   { background: #fef2f2; }
+    .analytics-tool-icon svg { width: 11px; height: 11px; }
+    .analytics-tool-icon.detected  svg { stroke: #059669; }
+    .analytics-tool-icon.missing   svg { stroke: #dc2626; }
+    .analytics-tool-name {
+      font-size: 0.8rem; font-weight: 500; color: var(--text);
+    }
+    .analytics-tool.missing .analytics-tool-name { color: var(--text-muted); }
 
     /* ── ACTION ITEMS ── */
     .action-list { display: flex; flex-direction: column; }
@@ -553,22 +585,40 @@
 const STORAGE_KEY = "saasy_audits_v3";
 
 const SECTION_DEFS = [
-  { key: "aboveFold",            title: "Above the Fold Clarity",   num: "01" },
-  { key: "ctaStructure",         title: "CTA Structure",            num: "02" },
-  { key: "messagingCopy",        title: "Messaging & Copy",         num: "03" },
-  { key: "productUnderstanding", title: "Product Understanding",    num: "04" },
-  { key: "socialProof",          title: "Social Proof & Trust",     num: "05" },
-  { key: "offerClarity",         title: "Offer Clarity",            num: "06" },
-  { key: "objectionHandling",    title: "Objection Handling",       num: "07" },
-  { key: "visualDesign",         title: "Visual Design & Layout",   num: "08" },
-  { key: "conversionFriction",   title: "Conversion Friction",      num: "09" },
-  { key: "mobileOpt",            title: "Mobile Optimization",      num: "10" },
-  { key: "abTesting",            title: "A/B Test Recommendations", num: "12" },
+  { key: "aboveFold",            title: "Above the Fold Clarity"   },
+  { key: "ctaStructure",         title: "CTA Structure"            },
+  { key: "messagingCopy",        title: "Messaging & Copy"         },
+  { key: "productUnderstanding", title: "Product Understanding"    },
+  { key: "socialProof",          title: "Social Proof & Trust"     },
+  { key: "offerClarity",         title: "Offer Clarity"            },
+  { key: "objectionHandling",    title: "Objection Handling"       },
+  { key: "visualDesign",         title: "Visual Design & Layout"   },
+  { key: "conversionFriction",   title: "Conversion Friction"      },
+  { key: "mobileOpt",            title: "Mobile Optimization"      },
+  { key: "abTesting",            title: "A/B Test Recommendations" },
+];
+
+const LOADING_MESSAGES = [
+  "Analyzing your hero section...",
+  "Reviewing call-to-action placement...",
+  "Checking social proof elements...",
+  "Evaluating your messaging clarity...",
+  "Assessing conversion friction points...",
+  "Looking at your offer structure...",
+  "Reviewing objection handling...",
+  "Checking mobile optimization...",
+  "Analyzing visual design hierarchy...",
+  "Reviewing analytics coverage...",
+  "Scoring all 12 CRO sections...",
+  "Compiling your audit report...",
 ];
 
 // ── State ──
 let audits = [];
 let currentId = null;
+let progressInterval = null;
+let messageInterval  = null;
+let currentProgress  = 0;
 
 function loadAudits() {
   try { audits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
@@ -632,7 +682,6 @@ function parseSections(raw) {
     return m ? m[1].trim() : null;
   };
 
-  // Actions
   const actionsRaw = get("ACTIONS");
   const actions = actionsRaw
     ? actionsRaw.split("\n").map(l => l.trim())
@@ -641,7 +690,6 @@ function parseSections(raw) {
         .filter(Boolean)
     : [];
 
-  // Grade
   const gradeRaw = get("GRADE");
   let score = 0, grade = "", gradeDescription = "";
   if (gradeRaw) {
@@ -670,7 +718,6 @@ function parseSections(raw) {
   };
 }
 
-// ── Extract PASS/FAIL verdict ──
 function extractVerdict(text) {
   if (!text) return null;
   if (text.match(/VERDICT:\s*PASS/i)) return "pass";
@@ -678,7 +725,6 @@ function extractVerdict(text) {
   return null;
 }
 
-// ── Count passing sections ──
 function countPasses(sections) {
   const keys = ["analytics","aboveFold","ctaStructure","messagingCopy",
     "productUnderstanding","socialProof","offerClarity","objectionHandling",
@@ -704,8 +750,7 @@ function formatText(text) {
     if (line.match(/^[-•*]\s+/) || line.match(/^\d+\.\s+/)) {
       if (!inList) { html += "<ul>"; inList = true; }
       let item = line.replace(/^[-•*]\s+/, "").replace(/^\d+\.\s+/, "");
-      item = formatInline(item);
-      html += `<li>${item}</li>`;
+      html += `<li>${formatInline(item)}</li>`;
       continue;
     }
     if (inList) { html += "</ul>"; inList = false; }
@@ -714,7 +759,6 @@ function formatText(text) {
       html += `<blockquote>${line.replace(/[""]/g, "")}</blockquote>`;
       continue;
     }
-
     if (line.match(/^\*\*[^*]+\*\*$/) || line.match(/^[A-Z][A-Z\s&]+:$/)) {
       html += `<p><span class="cb-bold">${line.replace(/\*\*/g, "")}</span></p>`;
       continue;
@@ -737,6 +781,39 @@ function formatInline(text) {
   return text
     .replace(/\*\*([^*]+)\*\*/g, '<span class="cb-bold">$1</span>')
     .replace(/`([^`]+)`/g, '<code style="background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:0.82em;font-family:ui-monospace,monospace">$1</code>');
+}
+
+// ── Render analytics tool list ──
+function renderAnalyticsCard(tools) {
+  const anyDetected = tools.some(t => t.detected);
+  const badge = anyDetected
+    ? `<span class="verdict-badge verdict-pass">Pass</span>`
+    : `<span class="verdict-badge verdict-fail">Fail</span>`;
+
+  const rows = tools.map(t => `
+    <div class="analytics-tool ${t.detected ? "detected" : "missing"}">
+      <div class="analytics-tool-icon ${t.detected ? "detected" : "missing"}">
+        ${t.detected
+          ? `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+          : `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+        }
+      </div>
+      <span class="analytics-tool-name">${t.name}</span>
+    </div>
+  `).join("");
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-row">
+          <div class="card-icon">${analyticsIcon()}</div>
+          <span class="card-title">Analytics & Tracking</span>
+        </div>
+        ${badge}
+      </div>
+      <div class="analytics-grid">${rows}</div>
+    </div>
+  `;
 }
 
 // ── Render audit ──
@@ -780,10 +857,12 @@ function renderAuditView(audit) {
     `;
   }
 
-  // 2. ANALYTICS
-  if (sections.analytics) {
+  // 2. ANALYTICS — use detected tools if available, fall back to text
+  if (sections.analyticsTools) {
+    html += renderAnalyticsCard(sections.analyticsTools);
+  } else if (sections.analytics) {
     const v = extractVerdict(sections.analytics);
-    html += sectionCard("Analytics & Tracking", "11", sections.analytics, v, analyticsIcon());
+    html += sectionCard("Analytics & Tracking", sections.analytics, v, analyticsIcon());
   }
 
   // 3. ACTION ITEMS
@@ -814,19 +893,19 @@ function renderAuditView(audit) {
     `;
   }
 
-  // 4-14. REMAINING SECTIONS
+  // 4+. REMAINING SECTIONS
   for (const def of SECTION_DEFS) {
     const text = sections[def.key];
     if (!text) continue;
     const v = extractVerdict(text);
-    html += sectionCard(def.title, def.num, text, v, defaultIcon());
+    html += sectionCard(def.title, text, v, defaultIcon());
   }
 
   html += `</div>`;
   content.innerHTML = html;
 }
 
-function sectionCard(title, num, text, verdict, iconSvg) {
+function sectionCard(title, text, verdict, iconSvg) {
   const badge = verdict === "pass"
     ? `<span class="verdict-badge verdict-pass">Pass</span>`
     : verdict === "fail"
@@ -837,7 +916,6 @@ function sectionCard(title, num, text, verdict, iconSvg) {
     <div class="card">
       <div class="card-header">
         <div class="card-title-row">
-          <div class="card-num">${num}</div>
           <div class="card-icon">${iconSvg}</div>
           <span class="card-title">${title}</span>
         </div>
@@ -880,20 +958,60 @@ function showAudit(id) {
   renderSidebar();
 }
 
-// ── Loading / Error ──
-function showLoading(msg) {
+// ── Loading ──
+function showLoading() {
   content.innerHTML = `
     <div class="loading-state">
-      <div class="loading-spinner"></div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill"></div></div>
-      <div class="loading-status" id="loadingStatus">${msg}</div>
+      <div class="loading-label">Auditing</div>
+      <div class="loading-bar-row">
+        <div class="loading-bar-wrap">
+          <div class="loading-bar-fill" id="loadingBarFill"></div>
+        </div>
+        <div class="loading-percent" id="loadingPercent">0%</div>
+      </div>
+      <div class="loading-message" id="loadingMessage">Fetching webpage...</div>
     </div>`;
+
+  currentProgress = 0;
+  let msgIdx = 0;
+
+  progressInterval = setInterval(() => {
+    const remaining = 94 - currentProgress;
+    currentProgress += Math.max(remaining * 0.022, 0.08);
+    currentProgress = Math.min(currentProgress, 94);
+    const barFill = document.getElementById("loadingBarFill");
+    const pct     = document.getElementById("loadingPercent");
+    if (barFill) barFill.style.width = currentProgress + "%";
+    if (pct)     pct.textContent = Math.round(currentProgress) + "%";
+  }, 220);
+
+  messageInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % LOADING_MESSAGES.length;
+    const msgEl = document.getElementById("loadingMessage");
+    if (msgEl) {
+      msgEl.style.opacity = "0";
+      setTimeout(() => {
+        const el = document.getElementById("loadingMessage");
+        if (el) { el.textContent = LOADING_MESSAGES[msgIdx]; el.style.opacity = "1"; }
+      }, 300);
+    }
+  }, 2800);
 }
-function updateLoadingStatus(msg) {
-  const el = document.getElementById("loadingStatus");
-  if (el) el.textContent = msg;
+
+function stopLoading() {
+  clearInterval(progressInterval);
+  clearInterval(messageInterval);
+  progressInterval = null;
+  messageInterval  = null;
+  // Flash to 100%
+  const barFill = document.getElementById("loadingBarFill");
+  const pct     = document.getElementById("loadingPercent");
+  if (barFill) barFill.style.width = "100%";
+  if (pct)     pct.textContent = "100%";
 }
+
 function showError(msg) {
+  stopLoading();
   content.innerHTML = `
     <div class="error-card">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -907,14 +1025,12 @@ function showError(msg) {
 async function runAudit() {
   let url = urlInput.value.trim();
   if (!url) { urlInput.focus(); return; }
-
-  // Re-attach the https:// prefix that the input UI strips
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     url = "https://" + url;
   }
 
   auditBtn.disabled = true;
-  showLoading("Connecting...");
+  showLoading();
 
   const response = await fetch("/audit", {
     method: "POST",
@@ -928,10 +1044,11 @@ async function runAudit() {
     return;
   }
 
-  const reader = response.body.getReader();
+  const reader  = response.body.getReader();
   const decoder = new TextDecoder();
   let streamBuf = "";
-  let rawText = "";
+  let rawText   = "";
+  let analyticsTools = null;
 
   try {
     while (true) {
@@ -946,12 +1063,14 @@ async function runAudit() {
         let event;
         try { event = JSON.parse(line.slice(6)); } catch { continue; }
 
-        if (event.type === "status") {
-          updateLoadingStatus(event.message);
+        if (event.type === "analytics_data") {
+          analyticsTools = event.tools;
         } else if (event.type === "chunk") {
           rawText += event.text;
         } else if (event.type === "done") {
+          stopLoading();
           const sections = parseSections(rawText);
+          if (analyticsTools) sections.analyticsTools = analyticsTools;
           const id = Date.now();
           const audit = { id, url, sections };
           audits.unshift(audit);
@@ -967,6 +1086,7 @@ async function runAudit() {
     }
   } finally {
     auditBtn.disabled = false;
+    stopLoading();
   }
 }
 
