@@ -3,75 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Saasy — Website CRO Auditor</title>
+  <title>Saasy — CRO Auditor</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    /* ── BETA MODAL ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(3px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      opacity: 0;
-      animation: fade-in 0.2s ease forwards;
-    }
-
-    @keyframes fade-in { to { opacity: 1; } }
-
-    .modal {
-      background: #fff;
-      border-radius: 16px;
-      padding: 36px 32px 28px;
-      max-width: 380px;
-      width: calc(100% - 40px);
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-      transform: translateY(8px);
-      animation: slide-up 0.22s ease forwards;
-    }
-
-    @keyframes slide-up { to { transform: translateY(0); } }
-
-    .modal img {
-      height: 36px;
-      width: auto;
-      margin-bottom: 20px;
-    }
-
-    .modal h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-      letter-spacing: -0.01em;
-    }
-
-    .modal p {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .modal button {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 11px 28px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.15s;
-    }
-
-    .modal button:hover { background: var(--primary-hover); }
 
     :root {
       --primary: #110fd6;
@@ -84,13 +18,7 @@
       --text: #111827;
       --text-muted: #6b7280;
       --text-faint: #9ca3af;
-      --success-bg: #ecfdf5;
-      --success-text: #065f46;
-      --success-border: #a7f3d0;
-      --fail-bg: #fef2f2;
-      --fail-text: #991b1b;
-      --fail-border: #fecaca;
-      --sidebar-w: 260px;
+      --sidebar-w: 264px;
       --radius: 10px;
     }
 
@@ -105,486 +33,315 @@
       overflow: hidden;
     }
 
+    /* ── BETA MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+      opacity: 0; animation: fade-in 0.2s ease forwards;
+    }
+    @keyframes fade-in { to { opacity: 1; } }
+
+    .modal {
+      background: #fff; border-radius: 16px;
+      padding: 32px 28px 24px;
+      max-width: 360px; width: calc(100% - 40px);
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      transform: translateY(8px);
+      animation: slide-up 0.22s ease forwards;
+    }
+    @keyframes slide-up { to { transform: translateY(0); } }
+
+    .modal-beta-tag {
+      display: inline-block;
+      background: #f3f4f6; color: #6b7280;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px; padding: 3px 12px;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .modal img { height: 34px; width: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
+    .modal h2 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .modal p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 22px; }
+    .modal button {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 10px; padding: 12px 28px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      width: 100%; transition: background 0.15s;
+    }
+    .modal button:hover { background: var(--primary-hover); }
+
     /* ── SIDEBAR ── */
     .sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
       background: var(--surface);
       border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
     }
 
     .sidebar-brand {
-      padding: 16px 18px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
     }
-
-    .sidebar-brand img {
-      height: 32px;
-      width: auto;
-      display: block;
-    }
+    .sidebar-brand img { height: 30px; width: auto; display: block; }
 
     .sidebar-new-btn {
-      margin: 14px 14px 8px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 9px 14px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: calc(100% - 28px);
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      margin: 12px 12px 6px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: 9px 14px; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; width: calc(100% - 24px);
+      display: flex; align-items: center; gap: 7px;
       transition: background 0.15s;
     }
-
     .sidebar-new-btn:hover { background: var(--primary-hover); }
-
-    .sidebar-new-btn .plus {
-      font-size: 1.1rem;
-      line-height: 1;
-      font-weight: 400;
-    }
+    .sidebar-new-btn .plus { font-size: 1.1rem; line-height: 1; font-weight: 400; }
 
     .sidebar-section-label {
-      padding: 12px 18px 6px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      padding: 10px 18px 4px;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--text-faint);
     }
 
-    .sidebar-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 8px 16px;
-    }
-
+    .sidebar-list { flex: 1; overflow-y: auto; padding: 0 8px 16px; }
     .sidebar-list::-webkit-scrollbar { width: 4px; }
     .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     .sidebar-item {
-      padding: 9px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.12s;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      padding: 8px 10px; border-radius: 8px;
+      cursor: pointer; transition: background 0.12s;
       margin-bottom: 2px;
     }
-
     .sidebar-item:hover { background: var(--bg); }
     .sidebar-item.active { background: var(--primary-light); }
 
     .sidebar-item .si-url {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.8rem; font-weight: 500; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: block; margin-bottom: 4px;
     }
-
     .sidebar-item.active .si-url { color: var(--primary); }
 
-    .sidebar-item .si-date {
-      font-size: 0.72rem;
-      color: var(--text-faint);
-    }
+    .si-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .si-date { font-size: 0.71rem; color: var(--text-faint); }
 
-    .sidebar-empty {
-      padding: 12px 18px;
-      font-size: 0.82rem;
-      color: var(--text-faint);
+    .si-grade {
+      font-size: 0.64rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+      white-space: nowrap;
     }
+    .si-grade-poor     { background: #fef2f2; color: #dc2626; }
+    .si-grade-ok       { background: #fffbeb; color: #b45309; }
+    .si-grade-good     { background: #eff6ff; color: #110fd6; }
+    .si-grade-excellent{ background: #ecfdf5; color: #065f46; }
+
+    .sidebar-empty { padding: 12px 18px; font-size: 0.82rem; color: var(--text-faint); }
 
     /* ── MAIN ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+    .main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    /* URL bar */
     .url-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 12px 24px; display: flex; gap: 10px; align-items: center;
     }
-
     .url-bar input {
-      flex: 1;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 9px 14px;
-      font-size: 0.9rem;
-      color: var(--text);
-      background: var(--bg);
-      outline: none;
-      transition: border-color 0.15s;
+      flex: 1; border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 9px 14px; font-size: 0.9rem; color: var(--text);
+      background: var(--bg); outline: none; transition: border-color 0.15s;
     }
-
     .url-bar input:focus { border-color: var(--primary); background: #fff; }
     .url-bar input::placeholder { color: var(--text-faint); }
-
     .url-bar button {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 9px 20px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
+      background: var(--primary); color: #fff; border: none;
+      border-radius: var(--radius); padding: 9px 20px;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      white-space: nowrap; display: flex; align-items: center; gap: 6px;
       transition: background 0.15s, opacity 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
-
     .url-bar button:hover:not(:disabled) { background: var(--primary-hover); }
     .url-bar button:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    /* Content area */
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 28px 32px 48px;
-    }
-
+    /* ── CONTENT ── */
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px 48px; }
     .content::-webkit-scrollbar { width: 6px; }
     .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
     /* Empty state */
     .empty-state {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 12px;
-      color: var(--text-faint);
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 12px; color: var(--text-faint);
     }
-
-    .empty-state .empty-icon {
-      width: 52px;
-      height: 52px;
-      background: var(--primary-light);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .empty-icon {
+      width: 52px; height: 52px; background: var(--primary-light);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
       margin-bottom: 4px;
     }
+    .empty-icon svg { width: 26px; height: 26px; }
+    .empty-state h2 { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
+    .empty-state p { font-size: 0.85rem; max-width: 300px; line-height: 1.5; }
 
-    .empty-state .empty-icon svg { width: 26px; height: 26px; }
-
-    .empty-state h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .empty-state p {
-      font-size: 0.85rem;
-      max-width: 280px;
-      line-height: 1.5;
-    }
-
-    /* Loading state */
+    /* Loading */
     .loading-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      gap: 16px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 16px;
     }
-
     .loading-spinner {
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border: 3px solid var(--primary-mid);
       border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
     }
-
-    .loading-status {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-    }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Audit sections */
-    .audit-header {
-      margin-bottom: 24px;
+    .loading-status { font-size: 0.88rem; color: var(--text-muted); }
+    .progress-bar-wrap { height: 3px; background: var(--primary-light); overflow: hidden; border-radius: 2px; width: 220px; }
+    .progress-bar-fill { height: 100%; background: var(--primary); animation: progress-ind 1.4s ease-in-out infinite; }
+    @keyframes progress-ind {
+      0%   { width: 0%;  margin-left: 0%; }
+      50%  { width: 60%; margin-left: 20%; }
+      100% { width: 0%;  margin-left: 100%; }
     }
 
-    .audit-header h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
+    /* ── AUDIT HEADER ── */
+    .audit-header { margin-bottom: 20px; }
+    .audit-header h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .audit-meta { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; }
+    .audit-url { color: var(--primary); font-weight: 500; word-break: break-all; }
+    .audit-score-summary { font-size: 0.78rem; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; color: var(--text-muted); font-weight: 500; }
 
-    .audit-header .audit-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
+    .sections-grid { display: flex; flex-direction: column; gap: 16px; }
 
-    .audit-header .audit-url {
-      color: var(--primary);
-      font-weight: 500;
-      word-break: break-all;
+    /* ── GRADE CARD ── */
+    .grade-card {
+      border-radius: 12px; padding: 24px 28px;
+      display: flex; flex-direction: column; gap: 0;
     }
+    .grade-card.poor     { background: #fef2f2; border: 1px solid #fca5a5; }
+    .grade-card.ok       { background: #fffbeb; border: 1px solid #fcd34d; }
+    .grade-card.good     { background: #eff6ff; border: 1px solid #93c5fd; }
+    .grade-card.excellent{ background: #ecfdf5; border: 1px solid #6ee7b7; }
 
-    .sections-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
+    .grade-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .grade-word { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .grade-card.poor     .grade-word { color: #dc2626; }
+    .grade-card.ok       .grade-word { color: #b45309; }
+    .grade-card.good     .grade-word { color: #110fd6; }
+    .grade-card.excellent .grade-word { color: #059669; }
 
-    /* Card */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
+    .grade-score-pill {
+      font-size: 0.82rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px; margin-top: 4px;
+      display: inline-block;
     }
+    .grade-card.poor     .grade-score-pill { background: rgba(220,38,38,0.1); color: #dc2626; }
+    .grade-card.ok       .grade-score-pill { background: rgba(180,83,9,0.1);  color: #b45309; }
+    .grade-card.good     .grade-score-pill { background: rgba(17,15,214,0.1); color: #110fd6; }
+    .grade-card.excellent .grade-score-pill{ background: rgba(5,150,105,0.1); color: #059669; }
+
+    .grade-section-count { font-size: 0.78rem; font-weight: 500; opacity: 0.65; margin-top: 2px; }
+    .grade-card.poor      .grade-section-count { color: #dc2626; }
+    .grade-card.ok        .grade-section-count { color: #b45309; }
+    .grade-card.good      .grade-section-count { color: #110fd6; }
+    .grade-card.excellent .grade-section-count { color: #059669; }
+
+    .grade-description { font-size: 0.875rem; line-height: 1.7; color: #374151; }
+
+    /* ── SECTION CARDS ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 
     .card-header {
-      padding: 14px 20px;
+      padding: 13px 18px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-
-    .card-title-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .card-title-row { display: flex; align-items: center; gap: 10px; }
+    .card-num {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 0.68rem; font-weight: 700; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
     }
-
     .card-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      background: var(--primary-light);
     }
+    .card-icon svg { width: 14px; height: 14px; stroke: var(--primary); }
 
-    .card-icon.blue { background: var(--primary-light); }
-    .card-icon.blue svg { color: var(--primary); }
-    .card-icon.green { background: #ecfdf5; }
-    .card-icon.green svg { color: #059669; }
-    .card-icon.orange { background: #fff7ed; }
-    .card-icon.orange svg { color: #c2410c; }
-
-    .card-icon svg { width: 15px; height: 15px; }
-
-    .card-title {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.01em;
-    }
+    .card-title { font-size: 0.86rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 
     .verdict-badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 3px 9px;
-      border-radius: 20px;
-      text-transform: uppercase;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+      padding: 3px 9px; border-radius: 20px; text-transform: uppercase; white-space: nowrap;
     }
-
-    .verdict-pass {
-      background: var(--success-bg);
-      color: var(--success-text);
-      border: 1px solid var(--success-border);
-    }
-
-    .verdict-fail {
-      background: var(--fail-bg);
-      color: var(--fail-text);
-      border: 1px solid var(--fail-border);
-    }
-
-    .verdict-value {
-      background: var(--success-bg);
-      color: var(--success-text);
-      border: 1px solid var(--success-border);
-    }
-
-    .verdict-not-value {
-      background: var(--fail-bg);
-      color: var(--fail-text);
-      border: 1px solid var(--fail-border);
-    }
+    .verdict-pass { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .verdict-fail { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
     .card-body {
-      padding: 18px 20px;
-      font-size: 0.875rem;
-      line-height: 1.75;
-      color: #374151;
+      padding: 16px 18px;
+      font-size: 0.865rem; line-height: 1.75; color: #374151;
+    }
+    .card-body p { margin-bottom: 8px; }
+    .card-body p:last-child { margin-bottom: 0; }
+    .card-body ul { padding-left: 18px; margin: 4px 0; }
+    .card-body li { margin-bottom: 4px; }
+    .cb-bold { font-weight: 600; color: var(--text); }
+    .card-body blockquote {
+      border-left: 3px solid var(--primary-mid);
+      padding: 5px 12px; margin: 8px 0;
+      color: var(--text-muted); font-style: italic;
+    }
+    .cta-tag {
+      display: inline-block;
+      background: var(--primary-light); color: var(--primary);
+      border: 1px solid var(--primary-mid);
+      border-radius: 5px; padding: 1px 7px;
+      font-size: 0.77rem; font-weight: 600; margin: 1px 2px;
     }
 
-    /* Action items */
-    .action-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
+    /* ── ACTION ITEMS ── */
+    .action-list { display: flex; flex-direction: column; }
     .action-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px 20px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.12s;
-      cursor: pointer;
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 18px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.12s;
     }
-
     .action-item:last-child { border-bottom: none; }
     .action-item:hover { background: var(--bg); }
     .action-item.done { background: #fafafa; }
 
     .action-item input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--border);
-      border-radius: 5px;
-      cursor: pointer;
-      flex-shrink: 0;
-      margin-top: 1px;
-      position: relative;
-      transition: all 0.15s;
-      background: #fff;
+      appearance: none; -webkit-appearance: none;
+      width: 17px; height: 17px;
+      border: 2px solid var(--border); border-radius: 5px;
+      cursor: pointer; flex-shrink: 0; margin-top: 1px;
+      position: relative; transition: all 0.15s; background: #fff;
     }
-
-    .action-item input[type="checkbox"]:checked {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-
+    .action-item input[type="checkbox"]:checked { background: var(--primary); border-color: var(--primary); }
     .action-item input[type="checkbox"]:checked::after {
-      content: "";
-      position: absolute;
-      left: 3px;
-      top: 0px;
-      width: 5px;
-      height: 9px;
-      border: 2px solid #fff;
-      border-top: none;
-      border-left: none;
+      content: ""; position: absolute;
+      left: 3px; top: 0px; width: 4px; height: 8px;
+      border: 2px solid #fff; border-top: none; border-left: none;
       transform: rotate(45deg);
     }
-
-    .action-item .action-text {
-      font-size: 0.875rem;
-      color: var(--text);
-      line-height: 1.5;
-      transition: color 0.15s;
-      user-select: none;
-    }
-
-    .action-item.done .action-text {
-      color: var(--text-faint);
-      text-decoration: line-through;
-    }
-
-    /* Content text formatting */
-    .card-body p { margin-bottom: 10px; }
-    .card-body p:last-child { margin-bottom: 0; }
-
-    .card-body .cb-bold { font-weight: 600; color: var(--text); }
-
-    .card-body .cta-tag {
-      display: inline-block;
-      background: var(--primary-light);
-      color: var(--primary);
-      border: 1px solid var(--primary-mid);
-      border-radius: 5px;
-      padding: 1px 7px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      margin: 1px 2px;
-    }
-
-    .card-body blockquote {
-      border-left: 3px solid var(--primary-mid);
-      padding: 6px 12px;
-      margin: 8px 0;
-      color: var(--text-muted);
-      font-style: italic;
-    }
+    .action-text { font-size: 0.865rem; color: var(--text); line-height: 1.5; transition: color 0.15s; user-select: none; }
+    .action-item.done .action-text { color: var(--text-faint); text-decoration: line-through; }
 
     /* Error */
     .error-card {
-      background: var(--fail-bg);
-      border: 1px solid var(--fail-border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      color: var(--fail-text);
-      font-size: 0.88rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px;
+      padding: 18px 20px; color: #991b1b; font-size: 0.88rem;
+      display: flex; align-items: flex-start; gap: 10px;
     }
-
     .error-card svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
-
-    /* Progress bar */
-    .progress-bar-wrap {
-      height: 3px;
-      background: var(--primary-light);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--primary);
-      width: 0%;
-      animation: progress-indeterminate 1.4s ease-in-out infinite;
-    }
-
-    @keyframes progress-indeterminate {
-      0% { width: 0%; margin-left: 0%; }
-      50% { width: 60%; margin-left: 20%; }
-      100% { width: 0%; margin-left: 100%; }
-    }
   </style>
 </head>
 <body>
@@ -592,6 +349,7 @@
 <!-- ── BETA MODAL ── -->
 <div class="modal-overlay" id="betaModal" style="display:none">
   <div class="modal">
+    <div class="modal-beta-tag">Beta</div>
     <img src="/saasy-logo-v2.png" alt="Saasy" />
     <h2>Welcome to Saasy</h2>
     <p>Saasy is currently in beta. Results may vary.</p>
@@ -617,20 +375,17 @@
 
 <!-- ── MAIN ── -->
 <div class="main">
-  <!-- URL bar -->
   <div class="url-bar">
     <input type="url" id="urlInput" placeholder="https://yourbusiness.com" autocomplete="off" />
     <button id="auditBtn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
       </svg>
       Audit Site
     </button>
   </div>
 
-  <!-- Content -->
   <div class="content" id="content">
-    <!-- Empty state -->
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -638,14 +393,30 @@
         </svg>
       </div>
       <h2>Audit your website</h2>
-      <p>Enter a business URL above to analyze CTAs and copy effectiveness.</p>
+      <p>Enter a business URL above to run a full 12-point CRO audit and get a conversion score.</p>
     </div>
   </div>
 </div>
 
 <script>
+// ── Constants ──
+const STORAGE_KEY = "saasy_audits_v3";
+
+const SECTION_DEFS = [
+  { key: "aboveFold",            title: "Above the Fold Clarity",   num: "01" },
+  { key: "ctaStructure",         title: "CTA Structure",            num: "02" },
+  { key: "messagingCopy",        title: "Messaging & Copy",         num: "03" },
+  { key: "productUnderstanding", title: "Product Understanding",    num: "04" },
+  { key: "socialProof",          title: "Social Proof & Trust",     num: "05" },
+  { key: "offerClarity",         title: "Offer Clarity",            num: "06" },
+  { key: "objectionHandling",    title: "Objection Handling",       num: "07" },
+  { key: "visualDesign",         title: "Visual Design & Layout",   num: "08" },
+  { key: "conversionFriction",   title: "Conversion Friction",      num: "09" },
+  { key: "mobileOpt",            title: "Mobile Optimization",      num: "10" },
+  { key: "abTesting",            title: "A/B Test Recommendations", num: "12" },
+];
+
 // ── State ──
-const STORAGE_KEY = "webaudit_v2";
 let audits = [];
 let currentId = null;
 
@@ -653,28 +424,32 @@ function loadAudits() {
   try { audits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
   catch { audits = []; }
 }
-
-function saveAudits() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(audits));
-}
+function saveAudits() { localStorage.setItem(STORAGE_KEY, JSON.stringify(audits)); }
 
 // ── DOM refs ──
-const urlInput = document.getElementById("urlInput");
-const auditBtn = document.getElementById("auditBtn");
-const content = document.getElementById("content");
-const emptyState = document.getElementById("emptyState");
+const urlInput    = document.getElementById("urlInput");
+const auditBtn    = document.getElementById("auditBtn");
+const content     = document.getElementById("content");
 const sidebarList = document.getElementById("sidebarList");
-const sidebarEmpty = document.getElementById("sidebarEmpty");
-const historyLabel = document.getElementById("historyLabel");
+const sidebarEmpty= document.getElementById("sidebarEmpty");
+const historyLabel= document.getElementById("historyLabel");
 const newAuditBtn = document.getElementById("newAuditBtn");
 
 // ── Sidebar ──
+function gradeClass(grade) {
+  if (!grade) return "";
+  const g = grade.toLowerCase();
+  if (g === "poor") return "poor";
+  if (g === "ok") return "ok";
+  if (g === "good") return "good";
+  if (g === "excellent") return "excellent";
+  return "";
+}
+
 function renderSidebar() {
   const hasAudits = audits.length > 0;
-  sidebarEmpty.style.display = hasAudits ? "none" : "block";
-  historyLabel.style.display = hasAudits ? "block" : "none";
-
-  // Remove existing sidebar items
+  sidebarEmpty.style.display  = hasAudits ? "none" : "block";
+  historyLabel.style.display  = hasAudits ? "block" : "none";
   sidebarList.querySelectorAll(".sidebar-item").forEach(el => el.remove());
 
   audits.forEach(audit => {
@@ -684,58 +459,86 @@ function renderSidebar() {
 
     const urlDisplay = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
     const date = new Date(audit.id).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const gc   = gradeClass(audit.sections?.grade);
+    const gradeBadge = gc
+      ? `<span class="si-grade si-grade-${gc}">${audit.sections.grade}</span>`
+      : "";
 
-    el.innerHTML = `<span class="si-url">${urlDisplay}</span><span class="si-date">${date}</span>`;
+    el.innerHTML = `
+      <span class="si-url">${urlDisplay}</span>
+      <div class="si-meta">
+        <span class="si-date">${date}</span>
+        ${gradeBadge}
+      </div>`;
     el.addEventListener("click", () => showAudit(audit.id));
     sidebarList.appendChild(el);
   });
 }
 
-// ── Parse sections from raw text ──
+// ── Parse sections ──
 function parseSections(raw) {
   const get = (tag) => {
     const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, "i"));
     return m ? m[1].trim() : null;
   };
 
+  // Actions
   const actionsRaw = get("ACTIONS");
   const actions = actionsRaw
-    ? actionsRaw.split("\n")
-        .map(l => l.trim())
+    ? actionsRaw.split("\n").map(l => l.trim())
         .filter(l => l.startsWith("-") || l.match(/^\d+\./))
         .map(l => l.replace(/^[-\d.]+\s*/, "").trim())
         .filter(Boolean)
     : [];
 
+  // Grade
+  const gradeRaw = get("GRADE");
+  let score = 0, grade = "", gradeDescription = "";
+  if (gradeRaw) {
+    const sm = gradeRaw.match(/SCORE:\s*([\d.]+)/i);
+    const gm = gradeRaw.match(/GRADE:\s*(Poor|Ok|Good|Excellent)/i);
+    const dm = gradeRaw.match(/DESCRIPTION:\s*([\s\S]+)/i);
+    if (sm) score = parseFloat(sm[1]);
+    if (gm) grade = gm[1];
+    if (dm) gradeDescription = dm[1].trim();
+  }
+
   return {
-    actions,
-    ctaAudit: get("CTA_AUDIT"),
-    copyEffectiveness: get("COPY_EFFECTIVENESS"),
+    actions, score, grade, gradeDescription,
+    analytics:            get("ANALYTICS"),
+    aboveFold:            get("ABOVE_FOLD"),
+    ctaStructure:         get("CTA_STRUCTURE"),
+    messagingCopy:        get("MESSAGING_COPY"),
+    productUnderstanding: get("PRODUCT_UNDERSTANDING"),
+    socialProof:          get("SOCIAL_PROOF"),
+    offerClarity:         get("OFFER_CLARITY"),
+    objectionHandling:    get("OBJECTION_HANDLING"),
+    visualDesign:         get("VISUAL_DESIGN"),
+    conversionFriction:   get("CONVERSION_FRICTION"),
+    mobileOpt:            get("MOBILE_OPTIMIZATION"),
+    abTesting:            get("AB_TESTING"),
   };
 }
 
-// ── Extract verdict from section text ──
-function extractVerdict(text, type) {
+// ── Extract PASS/FAIL verdict ──
+function extractVerdict(text) {
   if (!text) return null;
-  const lower = text.toLowerCase();
-  if (type === "cta") {
-    if (lower.includes("verdict: pass") || lower.match(/verdict[:\s]+pass/i)) return "pass";
-    if (lower.includes("verdict: fail") || lower.match(/verdict[:\s]+fail/i)) return "fail";
-    // Fallback scan
-    if (lower.includes("✅") || lower.includes("pass")) return "pass";
-    if (lower.includes("❌") || lower.includes("fail")) return "fail";
-  }
-  if (type === "copy") {
-    if (lower.match(/verdict[:\s]+not value[- ]driven/i) || lower.match(/not value[- ]driven/i)) return "not-value";
-    if (lower.match(/verdict[:\s]+value[- ]driven/i) || lower.includes("value-driven")) return "value";
-  }
+  if (text.match(/VERDICT:\s*PASS/i)) return "pass";
+  if (text.match(/VERDICT:\s*FAIL/i)) return "fail";
   return null;
 }
 
-// ── Format section text to HTML ──
+// ── Count passing sections ──
+function countPasses(sections) {
+  const keys = ["analytics","aboveFold","ctaStructure","messagingCopy",
+    "productUnderstanding","socialProof","offerClarity","objectionHandling",
+    "visualDesign","conversionFriction","mobileOpt","abTesting"];
+  return keys.filter(k => extractVerdict(sections[k]) === "pass").length;
+}
+
+// ── Format section body text ──
 function formatText(text) {
   if (!text) return "";
-
   const lines = text.split("\n");
   let html = "";
   let inList = false;
@@ -744,51 +547,36 @@ function formatText(text) {
     let line = raw.trim();
     if (!line) {
       if (inList) { html += "</ul>"; inList = false; }
-      html += '<div style="height:6px"></div>';
       continue;
     }
+    // Strip verdict lines (shown as badge)
+    if (line.match(/^VERDICT:\s*(PASS|FAIL)/i)) continue;
 
-    // Remove verdict lines (shown in badge)
-    if (line.match(/^Verdict[:\s]/i)) continue;
-
-    // Bullet / list
     if (line.match(/^[-•*]\s+/) || line.match(/^\d+\.\s+/)) {
-      if (!inList) { html += '<ul style="padding-left:18px;margin:4px 0">'; inList = true; }
-
+      if (!inList) { html += "<ul>"; inList = true; }
       let item = line.replace(/^[-•*]\s+/, "").replace(/^\d+\.\s+/, "");
       item = formatInline(item);
-
-      // Detect quoted copy (in quotes)
-      if (item.match(/^[""]|^".*"$/)) {
-        item = `<blockquote>${item.replace(/"/g, "").replace(/"/g, "")}</blockquote>`;
-        if (inList) { html += "</ul>"; inList = false; }
-        html += item;
-        continue;
-      }
-      html += `<li style="margin-bottom:4px">${item}</li>`;
+      html += `<li>${item}</li>`;
       continue;
     }
-
     if (inList) { html += "</ul>"; inList = false; }
 
-    // Section sub-headers (bold lines)
-    if (line.match(/^\*\*[^*]+\*\*$/) || line.match(/^[A-Z][A-Z\s]+:$/)) {
-      html += `<p style="margin:10px 0 4px"><strong>${line.replace(/\*\*/g, "")}</strong></p>`;
-      continue;
-    }
-
-    // Blockquote (line in quotes)
+    // Blockquote (line in curly quotes)
     if (line.match(/^[""][^""]{5,}[""]/)) {
       html += `<blockquote>${line.replace(/[""]/g, "")}</blockquote>`;
       continue;
     }
 
-    // CTA tag detection (short phrases in quotes or angle brackets)
+    // Bold-only lines as mini headers
+    if (line.match(/^\*\*[^*]+\*\*$/) || line.match(/^[A-Z][A-Z\s&]+:$/)) {
+      html += `<p><span class="cb-bold">${line.replace(/\*\*/g, "")}</span></p>`;
+      continue;
+    }
+
+    // CTA tag highlighting
     line = line.replace(/"([^"]{3,30})"/g, (_, cta) => {
-      // Only convert short CTA-like phrases
-      if (cta.split(" ").length <= 5 && /^[A-Z]/.test(cta)) {
+      if (cta.split(" ").length <= 5 && /^[A-Z]/.test(cta))
         return `<span class="cta-tag">${cta}</span>`;
-      }
       return `"${cta}"`;
     });
 
@@ -805,48 +593,68 @@ function formatInline(text) {
     .replace(/`([^`]+)`/g, '<code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:0.82em">$1</code>');
 }
 
-// ── Render audit sections ──
+// ── Render audit ──
 function renderAuditView(audit) {
   const { url, sections, id } = audit;
-  const { actions, ctaAudit, copyEffectiveness } = sections;
-
-  const ctaVerdict = extractVerdict(ctaAudit, "cta");
-  const copyVerdict = extractVerdict(copyEffectiveness, "copy");
-
+  const gc = gradeClass(sections.grade);
+  const passes = countPasses(sections);
   const urlDisplay = url.replace(/^https?:\/\//, "").replace(/\/$/, "");
   const dateStr = new Date(id).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" });
 
   let html = `
     <div class="audit-header">
-      <h1>Website Audit</h1>
+      <h1>CRO Audit</h1>
       <div class="audit-meta">
         <span class="audit-url">${urlDisplay}</span>
         <span>·</span>
         <span>${dateStr}</span>
+        ${passes > 0 ? `<span class="audit-score-summary">${passes}/12 sections passed</span>` : ""}
       </div>
     </div>
     <div class="sections-grid">
   `;
 
-  // Action Items
-  if (actions.length > 0) {
+  // 1. GRADE CARD (first, prominent)
+  if (sections.grade) {
+    html += `
+      <div class="grade-card ${gc}">
+        <div class="grade-top">
+          <div>
+            <div class="grade-word">${sections.grade.toUpperCase()}</div>
+            <div class="grade-section-count">${passes} of 12 sections passed</div>
+          </div>
+          <div class="grade-score-pill">${Number(sections.score || 0).toFixed(2)} / 100</div>
+        </div>
+        <div class="grade-description">${sections.gradeDescription || ""}</div>
+      </div>
+    `;
+  }
+
+  // 2. ANALYTICS (section 11, displayed second per spec)
+  if (sections.analytics) {
+    const v = extractVerdict(sections.analytics);
+    html += sectionCard("Analytics & Tracking", "11", sections.analytics, v, analyticsIcon());
+  }
+
+  // 3. ACTION ITEMS
+  if (sections.actions?.length > 0) {
     const checkedItems = new Set(sections.checkedItems || []);
     html += `
-      <div class="card" id="card-actions">
+      <div class="card">
         <div class="card-header">
           <div class="card-title-row">
-            <div class="card-icon blue">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
               </svg>
             </div>
             <span class="card-title">Action Items</span>
           </div>
-          <span style="font-size:0.78rem;color:var(--text-faint)">${actions.length} item${actions.length !== 1 ? "s" : ""}</span>
+          <span style="font-size:0.75rem;color:var(--text-faint)">${sections.actions.length} item${sections.actions.length !== 1 ? "s" : ""}</span>
         </div>
         <div class="action-list">
-          ${actions.map((item, i) => `
-            <label class="action-item${checkedItems.has(i) ? " done" : ""}" data-idx="${i}" data-audit-id="${id}">
+          ${sections.actions.map((item, i) => `
+            <label class="action-item${checkedItems.has(i) ? " done" : ""}" data-idx="${i}">
               <input type="checkbox" ${checkedItems.has(i) ? "checked" : ""} onchange="toggleCheck(${id}, ${i}, this)" />
               <span class="action-text">${item}</span>
             </label>
@@ -856,75 +664,64 @@ function renderAuditView(audit) {
     `;
   }
 
-  // CTA Audit
-  const ctaBadge = ctaVerdict === "pass"
-    ? '<span class="verdict-badge verdict-pass">Pass</span>'
-    : ctaVerdict === "fail"
-    ? '<span class="verdict-badge verdict-fail">Fail</span>'
-    : "";
-
-  html += `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title-row">
-          <div class="card-icon blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
-            </svg>
-          </div>
-          <span class="card-title">CTA Audit</span>
-        </div>
-        ${ctaBadge}
-      </div>
-      <div class="card-body">${formatText(ctaAudit || "No CTA data found.")}</div>
-    </div>
-  `;
-
-  // Copy Effectiveness
-  const copyBadge = copyVerdict === "value"
-    ? '<span class="verdict-badge verdict-value">Value-Driven</span>'
-    : copyVerdict === "not-value"
-    ? '<span class="verdict-badge verdict-not-value">Not Value-Driven</span>'
-    : "";
-
-  html += `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title-row">
-          <div class="card-icon orange">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-          </div>
-          <span class="card-title">Copy Effectiveness</span>
-        </div>
-        ${copyBadge}
-      </div>
-      <div class="card-body">${formatText(copyEffectiveness || "No copy analysis found.")}</div>
-    </div>
-  `;
+  // 4-14. REMAINING SECTIONS in order
+  for (const def of SECTION_DEFS) {
+    const text = sections[def.key];
+    if (!text) continue;
+    const v = extractVerdict(text);
+    html += sectionCard(def.title, def.num, text, v, defaultIcon());
+  }
 
   html += `</div>`;
   content.innerHTML = html;
 }
 
-// ── Toggle action item checkbox ──
+function sectionCard(title, num, text, verdict, iconSvg) {
+  const badge = verdict === "pass"
+    ? `<span class="verdict-badge verdict-pass">Pass</span>`
+    : verdict === "fail"
+    ? `<span class="verdict-badge verdict-fail">Fail</span>`
+    : "";
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-row">
+          <div class="card-num">${num}</div>
+          <div class="card-icon">${iconSvg}</div>
+          <span class="card-title">${title}</span>
+        </div>
+        ${badge}
+      </div>
+      <div class="card-body">${formatText(text)}</div>
+    </div>
+  `;
+}
+
+function defaultIcon() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+  </svg>`;
+}
+function analyticsIcon() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+  </svg>`;
+}
+
+// ── Toggle checkbox ──
 function toggleCheck(auditId, index, checkbox) {
   const audit = audits.find(a => a.id === auditId);
   if (!audit) return;
-
   const checked = new Set(audit.sections.checkedItems || []);
   if (checkbox.checked) checked.add(index);
   else checked.delete(index);
   audit.sections.checkedItems = [...checked];
   saveAudits();
-
-  // Update the label class
-  const label = checkbox.closest(".action-item");
-  if (label) label.classList.toggle("done", checkbox.checked);
+  checkbox.closest(".action-item")?.classList.toggle("done", checkbox.checked);
 }
 
-// ── Show an existing audit ──
+// ── Show saved audit ──
 function showAudit(id) {
   const audit = audits.find(a => a.id === id);
   if (!audit) return;
@@ -933,24 +730,18 @@ function showAudit(id) {
   renderSidebar();
 }
 
-// ── Show loading state ──
-function showLoading(statusMsg) {
+// ── Loading / Error ──
+function showLoading(msg) {
   content.innerHTML = `
     <div class="loading-state">
-      <div class="progress-bar-wrap" style="width:240px;border-radius:2px">
-        <div class="progress-bar-fill"></div>
-      </div>
-      <div class="loading-status" id="loadingStatus">${statusMsg}</div>
-    </div>
-  `;
+      <div class="progress-bar-wrap"><div class="progress-bar-fill"></div></div>
+      <div class="loading-status" id="loadingStatus">${msg}</div>
+    </div>`;
 }
-
 function updateLoadingStatus(msg) {
   const el = document.getElementById("loadingStatus");
   if (el) el.textContent = msg;
 }
-
-// ── Show error ──
 function showError(msg) {
   content.innerHTML = `
     <div class="error-card">
@@ -958,8 +749,7 @@ function showError(msg) {
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
       <div>${msg}</div>
-    </div>
-  `;
+    </div>`;
 }
 
 // ── Run audit ──
@@ -991,7 +781,6 @@ async function runAudit() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-
       streamBuf += decoder.decode(value, { stream: true });
       const lines = streamBuf.split("\n");
       streamBuf = lines.pop();
@@ -1009,12 +798,9 @@ async function runAudit() {
           const sections = parseSections(rawText);
           const id = Date.now();
           const audit = { id, url, sections };
-
-          // Prepend to audits list
           audits.unshift(audit);
           if (audits.length > 50) audits = audits.slice(0, 50);
           saveAudits();
-
           currentId = id;
           renderAuditView(audit);
           renderSidebar();
@@ -1028,13 +814,11 @@ async function runAudit() {
   }
 }
 
-// ── New audit (clear form) ──
+// ── New audit ──
 newAuditBtn.addEventListener("click", () => {
   currentId = null;
   urlInput.value = "";
   urlInput.focus();
-  content.innerHTML = document.getElementById("emptyState") ? "" : "";
-  // Re-inject empty state
   content.innerHTML = `
     <div class="empty-state">
       <div class="empty-icon">
@@ -1043,9 +827,8 @@ newAuditBtn.addEventListener("click", () => {
         </svg>
       </div>
       <h2>Audit your website</h2>
-      <p>Enter a business URL above to analyze CTAs and copy effectiveness.</p>
-    </div>
-  `;
+      <p>Enter a business URL above to run a full 12-point CRO audit and get a conversion score.</p>
+    </div>`;
   renderSidebar();
 });
 
@@ -1061,15 +844,10 @@ function dismissModal() {
 // ── Init ──
 loadAudits();
 renderSidebar();
-
 if (!localStorage.getItem("saasy_beta_seen")) {
   document.getElementById("betaModal").style.display = "flex";
 }
-
-// Show most recent audit on load if available
-if (audits.length > 0) {
-  showAudit(audits[0].id);
-}
+if (audits.length > 0) showAudit(audits[0].id);
 </script>
 </body>
 </html>

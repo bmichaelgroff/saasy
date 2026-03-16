@@ -12,10 +12,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/audit", async (req, res) => {
   const { url } = req.body;
-
-  if (!url) {
-    return res.status(400).json({ error: "URL is required" });
-  }
+  if (!url) return res.status(400).json({ error: "URL is required" });
 
   let normalizedUrl = url.trim();
   if (!normalizedUrl.startsWith("http://") && !normalizedUrl.startsWith("https://")) {
@@ -34,7 +31,7 @@ app.post("/audit", async (req, res) => {
     let html;
     try {
       const response = await fetch(normalizedUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; WebsiteAuditor/1.0)" },
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; SaasyCRO/1.0)" },
         timeout: 15000,
       });
       html = await response.text();
@@ -49,54 +46,122 @@ app.post("/audit", async (req, res) => {
       .replace(/<[^>]+>/g, " ")
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 12000);
+      .slice(0, 15000);
 
     send({ type: "status", message: "Analyzing with AI..." });
 
     const stream = client.messages.stream({
       model: "claude-opus-4-6",
-      max_tokens: 2048,
+      max_tokens: 6000,
       thinking: { type: "adaptive" },
-      system: `You are a conversion rate optimization (CRO) expert auditing business websites.
-Your audits are direct, specific, and actionable. You respond ONLY using the exact section format given — no text before [ACTIONS].`,
-      messages: [
-        {
-          role: "user",
-          content: `Audit this website: ${normalizedUrl}
+      system: `You are a senior conversion rate optimization (CRO) expert auditing business websites. Your audits are direct, specific, and evidence-based. You respond ONLY in the exact format requested — no preamble, no text before [ACTIONS].`,
+      messages: [{
+        role: "user",
+        content: `Audit this website using the Saasy CRO Framework: ${normalizedUrl}
 
-Return your response in EXACTLY this format, using these markers precisely:
+Evaluate all 12 sections. Each is PASS (8.33 pts) or FAIL (0 pts). Base findings on the actual page content provided.
+
+SECTION CRITERIA:
+1. Above the Fold Clarity — clear value-prop headline, explains what + who, subheadline with outcome, product visual, CTA visible without scrolling, trust signal above fold
+2. CTA Structure — one primary CTA, secondary CTAs support same goal, action-oriented copy, visually contrasting buttons, CTAs repeated down page, follows reading flow
+3. Messaging & Copy — benefit-driven not feature-driven, communicates problem solved, clear outcome/transformation, simple/scannable, audience-specific, no vague language
+4. Product Understanding — product value immediately clear, explains how it works, product visuals (screenshots/UI/demos), user journey explained, capabilities shown visually
+5. Social Proof & Trust Signals — customer logos, testimonials with specific results/outcomes, case studies or success stories, quotes with measurable impact
+6. Offer Clarity — offer clearly defined (demo/trial/signup), post-CTA steps clear, pricing accessible if relevant, trial/guarantee messaging, friction reduced, next step explained
+7. Objection Handling — addresses common objections, FAQ section, pricing/onboarding/complexity concerns addressed, risk-reversal messaging, comparisons or differentiation
+8. Visual Design & Layout — visual hierarchy guides reader down page, sections clearly separated, scannable text, readable typography, color supports CTAs, minimal clutter
+9. Conversion Friction — short simple forms, minimal required fields, clear labels, minimal clicks before conversion, simple signup/booking process
+10. Mobile Optimization — responsive layout, CTA visible on mobile, readable text size, easy-to-tap buttons, mobile-friendly forms
+11. Analytics & Tracking — evidence of GA4, GTM, Microsoft Clarity, or A/B testing tool (Mida.so, Statsig, Amplitude, VWO) in page source
+12. A/B Test Recommendations — ALWAYS PASS — provide 2-3 specific, actionable A/B test ideas tailored to this site
+
+SCORING:
+Count PASS sections × 8.33 = total score.
+0–24.99 = Poor | 25–49.99 = Ok | 50–74.99 = Good | 75–100 = Excellent
+
+GRADE DESCRIPTIONS (customize to this specific site):
+- Poor: "Your landing page is missing many of the core elements required for strong conversions. [specific missing elements from this page]. Pages in this range typically lack clear messaging, strong CTAs, and trust signals. Significant improvements are needed before the page can effectively convert traffic into leads or customers. [one specific custom tip for this URL]"
+- Ok: "Your landing page has some foundational conversion elements, but important gaps remain. [specific gaps found]. [one specific custom tip for this URL]"
+- Good: "Your landing page includes many of the important components needed to convert visitors. [what this page does well]. [what this page doesn't do well]. With targeted optimization and testing, this page has strong potential to convert significantly more traffic."
+- Excellent: "Your landing page demonstrates strong conversion fundamentals. [what this page does well]. Pages in this range typically perform very well and have high conversion rates. If yours does not, audit your traffic acquisition strategies to ensure you're sending high-quality traffic."
+
+Respond in EXACTLY this format. NO text before [ACTIONS]:
 
 [ACTIONS]
-- Action item (short, specific, immediately actionable — tied to a real finding on this site)
-- Action item
-- Action item
-(3–5 items max)
+- [Specific actionable item for this site]
+- [Specific actionable item for this site]
+- [Specific actionable item for this site]
 [/ACTIONS]
 
-[CTA_AUDIT]
-List every unique CTA found (buttons, action links like "Sign Up", "Get Started", "Buy Now", "Contact Us", etc.).
+[GRADE]
+SCORE: [X.XX]
+GRADE: [Poor/Ok/Good/Excellent]
+DESCRIPTION: [Custom 2-3 sentence description following the template above, specific to this site]
+[/GRADE]
 
-Assess whether there are more than 2 distinct CTAs. More CTAs dilute conversion focus.
+[ANALYTICS]
+[Specific findings on tracking tools detected or missing in page source]
+VERDICT: PASS or FAIL
+[/ANALYTICS]
 
-Verdict: PASS or FAIL — one sentence explanation.
-[/CTA_AUDIT]
+[ABOVE_FOLD]
+[Specific findings on above-the-fold elements for this site]
+VERDICT: PASS or FAIL
+[/ABOVE_FOLD]
 
-[COPY_EFFECTIVENESS]
-Analyze whether the copy is value-driven.
-- Value-driven copy = outcomes and benefits for the customer ("Save 10 hours a week", "Double your revenue")
-- Weak copy = features or company-centric ("Founded in 2010", "50+ features")
+[CTA_STRUCTURE]
+[Specific findings on CTA structure for this site]
+VERDICT: PASS or FAIL
+[/CTA_STRUCTURE]
 
-Quote 2–3 specific lines from the actual page copy to support your verdict.
+[MESSAGING_COPY]
+[Specific findings on messaging and copy quality for this site]
+VERDICT: PASS or FAIL
+[/MESSAGING_COPY]
 
-If weak: explain exactly why, then give 1–2 concrete rewrite examples.
+[PRODUCT_UNDERSTANDING]
+[Specific findings on product explanation and visuals]
+VERDICT: PASS or FAIL
+[/PRODUCT_UNDERSTANDING]
 
-Verdict: VALUE-DRIVEN or NOT VALUE-DRIVEN — one sentence explanation.
-[/COPY_EFFECTIVENESS]
+[SOCIAL_PROOF]
+[Specific findings on social proof and trust signals]
+VERDICT: PASS or FAIL
+[/SOCIAL_PROOF]
+
+[OFFER_CLARITY]
+[Specific findings on offer clarity and next steps]
+VERDICT: PASS or FAIL
+[/OFFER_CLARITY]
+
+[OBJECTION_HANDLING]
+[Specific findings on objection handling and FAQ]
+VERDICT: PASS or FAIL
+[/OBJECTION_HANDLING]
+
+[VISUAL_DESIGN]
+[Specific findings on visual design and layout]
+VERDICT: PASS or FAIL
+[/VISUAL_DESIGN]
+
+[CONVERSION_FRICTION]
+[Specific findings on conversion friction and form complexity]
+VERDICT: PASS or FAIL
+[/CONVERSION_FRICTION]
+
+[MOBILE_OPTIMIZATION]
+[Specific findings on mobile optimization]
+VERDICT: PASS or FAIL
+[/MOBILE_OPTIMIZATION]
+
+[AB_TESTING]
+[2-3 specific A/B test recommendations with brief rationale, tailored to this site]
+VERDICT: PASS
+[/AB_TESTING]
 
 Website content:
 ${stripped}`,
-        },
-      ],
+      }],
     });
 
     send({ type: "status", message: "Generating audit..." });
