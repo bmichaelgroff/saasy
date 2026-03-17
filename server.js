@@ -14,10 +14,7 @@ const ANALYTICS_TOOLS = [
   { name: "Google Analytics 4", patterns: [/gtag\.js/i, /G-[A-Z0-9]{6,}/i, /google-analytics\.com\/g\//i] },
   { name: "Google Tag Manager", patterns: [/googletagmanager\.com\/gtm\.js/i, /GTM-[A-Z0-9]+/i] },
   { name: "Microsoft Clarity",  patterns: [/clarity\.ms/i, /microsoft\.com\/clarity/i] },
-  { name: "Amplitude",          patterns: [/cdn\.amplitude\.com/i, /amplitude\.js/i, /amplitude\.getInstance/i] },
-  { name: "VWO",                patterns: [/visualwebsiteoptimizer\.com/i, /vwo\.com/i, /vwoCode/i] },
   { name: "Mida.so",            patterns: [/mida\.so/i] },
-  { name: "Statsig",            patterns: [/statsig\.com/i, /statsig\.io/i] },
 ];
 
 function detectAnalytics(html) {
@@ -98,7 +95,7 @@ SECTION CRITERIA:
 8. Visual Design & Layout — visual hierarchy guides reader down page, sections clearly separated, scannable text, readable typography, color supports CTAs, minimal clutter
 9. Conversion Friction — short simple forms, minimal required fields, clear labels, minimal clicks before conversion, simple signup/booking process
 10. Mobile Optimization — responsive layout, CTA visible on mobile, readable text size, easy-to-tap buttons, mobile-friendly forms
-11. Analytics & Tracking — evidence of GA4, GTM, Microsoft Clarity, or A/B testing tool (Mida.so, Statsig, Amplitude, VWO) in page source
+11. Analytics & Tracking — evidence of GA4, GTM, Microsoft Clarity, or A/B testing tool (Mida.so) in page source
 12. A/B Test Recommendations — ALWAYS PASS — provide 2-3 specific, actionable A/B test ideas tailored to this site
 
 SCORING:
