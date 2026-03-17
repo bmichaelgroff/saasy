@@ -485,24 +485,73 @@
 </head>
 <body>
 
-<!-- ─── BETA MODAL ─── -->
+<!-- ─── ONBOARDING MODAL ─── -->
 <div class="modal-overlay" id="betaModal" style="display:none">
   <div class="modal">
-    <div class="modal-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/>
-      </svg>
+
+    <!-- Step 1: Welcome -->
+    <div id="onboardStep1">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/>
+        </svg>
+      </div>
+      <h2>Welcome to Saasy</h2>
+      <div class="modal-sub">
+        <ul>
+          <li>All projects are currently stored in your browser.</li>
+          <li>Some information may not be correct.</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" style="flex:1" onclick="onboardNext()">Get Started</button>
+      </div>
     </div>
-    <h2>Welcome to Saasy</h2>
-    <div class="modal-sub">
-      <ul>
-        <li>All projects are currently stored in your browser.</li>
-        <li>Some information may not be correct.</li>
-      </ul>
+
+    <!-- Step 2: Profile setup -->
+    <div id="onboardStep2" style="display:none">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+      <h2>Set up your account</h2>
+      <p class="modal-sub">This info appears in your sidebar.</p>
+
+      <!-- Avatar upload -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <div id="onboardAvatarPreview" style="
+          width:56px;height:56px;border-radius:50%;background:var(--gray-200);
+          display:flex;align-items:center;justify-content:center;
+          font-size:1.25rem;font-weight:600;color:var(--gray-600);
+          overflow:hidden;flex-shrink:0;cursor:pointer;border:2px dashed var(--border-2);
+        " onclick="document.getElementById('onboardPhotoInput').click()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.875rem;font-weight:500;color:var(--gray-700);">Profile photo</div>
+          <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">Click to upload (optional)</div>
+        </div>
+        <input type="file" id="onboardPhotoInput" accept="image/*" style="display:none" onchange="onboardPhotoChange(this)"/>
+      </div>
+
+      <div class="form-group">
+        <label for="onboardName">Your Name</label>
+        <input id="onboardName" placeholder="Jane Smith" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label for="onboardCompany">Company Name</label>
+        <input id="onboardCompany" placeholder="Acme Corp" autocomplete="off" />
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="flex:1" onclick="onboardSkip()">Skip</button>
+        <button class="btn btn-primary" style="flex:1" onclick="onboardSave()">Save &amp; Continue</button>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" style="flex:1" onclick="dismissBetaModal()">Got it</button>
-    </div>
+
   </div>
 </div>
 
@@ -572,11 +621,11 @@
 
   <div class="sidebar-divider"></div>
 
-  <div class="sidebar-user">
-    <div class="user-avatar">U</div>
+  <div class="sidebar-user" id="sidebarUser">
+    <div class="user-avatar" id="sidebarAvatar">U</div>
     <div class="user-info">
-      <div class="user-name">Your Account</div>
-      <div class="user-email">saasy.app</div>
+      <div class="user-name" id="sidebarName">Your Account</div>
+      <div class="user-email" id="sidebarCompany">saasy.app</div>
     </div>
   </div>
 </aside>
@@ -715,10 +764,58 @@ function dismissCta() {
   localStorage.setItem("saasy_cta_dismissed", "1");
 }
 
-// ─── Beta modal ───
-function dismissBetaModal() {
+// ─── Onboarding modal ───
+let onboardPhotoDataUrl = null;
+
+function onboardNext() {
+  document.getElementById("onboardStep1").style.display = "none";
+  document.getElementById("onboardStep2").style.display = "block";
+}
+
+function onboardPhotoChange(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    onboardPhotoDataUrl = e.target.result;
+    const preview = document.getElementById("onboardAvatarPreview");
+    preview.innerHTML = `<img src="${onboardPhotoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function onboardSave() {
+  const name    = document.getElementById("onboardName").value.trim();
+  const company = document.getElementById("onboardCompany").value.trim();
+  const profile = { name, company, photo: onboardPhotoDataUrl };
+  localStorage.setItem("saasy_profile", JSON.stringify(profile));
+  applySidebarProfile(profile);
+  closeBetaModal();
+}
+
+function onboardSkip() {
+  closeBetaModal();
+}
+
+function closeBetaModal() {
   document.getElementById("betaModal").style.display = "none";
   localStorage.setItem("saasy_beta_seen", "1");
+}
+
+function applySidebarProfile(profile) {
+  if (!profile) return;
+  const avatarEl  = document.getElementById("sidebarAvatar");
+  const nameEl    = document.getElementById("sidebarName");
+  const companyEl = document.getElementById("sidebarCompany");
+  if (nameEl && profile.name)    nameEl.textContent = profile.name;
+  if (companyEl && profile.company) companyEl.textContent = profile.company;
+  if (avatarEl) {
+    if (profile.photo) {
+      avatarEl.innerHTML = `<img src="${profile.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+    } else if (profile.name) {
+      avatarEl.textContent = profile.name.charAt(0).toUpperCase();
+    }
+  }
 }
 
 // ─── New Project modal ───
@@ -1391,6 +1488,8 @@ async function runAudit(projectId) {
 
 // ─── Init ───
 loadProjects();
+const savedProfile = localStorage.getItem("saasy_profile");
+if (savedProfile) applySidebarProfile(JSON.parse(savedProfile));
 if (!localStorage.getItem("saasy_beta_seen")) document.getElementById("betaModal").style.display = "flex";
 if (localStorage.getItem("saasy_cta_dismissed")) document.getElementById("sidebarCta").style.display = "none";
 renderProjectsListView();
