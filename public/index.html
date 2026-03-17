@@ -1594,7 +1594,7 @@ function exportAuditPDF(projectId, auditId) {
   if (!audit) return;
 
   const el = document.createElement("div");
-  el.style.cssText = "position:fixed;left:-9999px;top:0;width:760px;background:#fff;font-family:Inter,sans-serif;color:#101828;padding:56px;box-sizing:border-box;font-size:14px;line-height:1.6;";
+  el.style.cssText = "position:absolute;left:0;top:0;width:760px;background:#fff;opacity:0.001;pointer-events:none;z-index:-1;font-family:Inter,sans-serif;color:#101828;padding:56px;box-sizing:border-box;font-size:14px;line-height:1.6;";
   el.innerHTML = buildPdfHtml(proj, audit);
   document.body.appendChild(el);
 
@@ -1604,7 +1604,7 @@ function exportAuditPDF(projectId, auditId) {
       margin: 0,
       filename: `${domain}-cro-audit.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0, windowWidth: 760 },
       jsPDF: { unit: "px", format: "a4", orientation: "portrait" },
     })
     .from(el)
