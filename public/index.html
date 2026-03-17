@@ -44,7 +44,7 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ── BETA MODAL ── */
+    /* ── MODALS ── */
     .modal-overlay {
       position: fixed; inset: 0;
       background: rgba(9,9,20,0.45);
@@ -59,7 +59,7 @@
       background: #fff;
       border-radius: 16px;
       padding: 36px 32px 28px;
-      max-width: 360px; width: calc(100% - 40px);
+      max-width: 400px; width: calc(100% - 40px);
       text-align: center;
       box-shadow: 0 24px 48px -12px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
       transform: translateY(12px) scale(0.98);
@@ -77,25 +77,49 @@
       margin-bottom: 18px;
     }
     .modal-beta-tag::before {
-      content: "";
-      width: 6px; height: 6px;
-      background: var(--primary);
-      border-radius: 50%;
-      display: inline-block;
+      content: ""; width: 6px; height: 6px;
+      background: var(--primary); border-radius: 50%; display: inline-block;
     }
-
-    .modal img { height: 32px; width: auto; margin: 0 auto 14px; display: block; }
+    .modal img.modal-logo { height: 32px; width: auto; margin: 0 auto 14px; display: block; }
     .modal h2 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -0.02em; }
-    .modal p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 24px; }
-    .modal button {
-      background: var(--primary); color: #fff; border: none;
-      border-radius: var(--radius); padding: 11px 28px;
+    .modal p  { font-size: 0.875rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 24px; }
+
+    /* Form fields inside modal */
+    .modal-form { text-align: left; margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .form-field label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--text-secondary); margin-bottom: 5px;
+    }
+    .form-field input {
+      width: 100%; border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 9px 12px;
+      font-size: 0.875rem; color: var(--text); font-family: inherit;
+      background: var(--bg); outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(17,15,214,0.08);
+      background: #fff;
+    }
+    .form-field input::placeholder { color: var(--text-faint); }
+
+    .modal-actions { display: flex; gap: 8px; }
+    .btn-primary {
+      flex: 1; background: var(--primary); color: #fff; border: none;
+      border-radius: var(--radius); padding: 11px 20px;
       font-size: 0.875rem; font-weight: 600; cursor: pointer;
-      width: 100%; transition: background 0.15s;
       font-family: inherit; letter-spacing: -0.01em;
       box-shadow: 0 1px 2px rgba(17,15,214,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: background 0.15s;
     }
-    .modal button:hover { background: var(--primary-hover); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      background: var(--surface); color: var(--text-muted); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 11px 16px;
+      font-size: 0.875rem; font-weight: 500; cursor: pointer;
+      font-family: inherit; transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--bg); }
 
     /* ── SIDEBAR ── */
     .sidebar {
@@ -128,8 +152,7 @@
     .sidebar-new-btn:hover { background: var(--primary-hover); }
     .sidebar-new-btn .btn-icon {
       width: 16px; height: 16px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 4px;
+      background: rgba(255,255,255,0.2); border-radius: 4px;
       display: flex; align-items: center; justify-content: center;
       font-size: 1rem; line-height: 1; font-weight: 300; flex-shrink: 0;
     }
@@ -138,8 +161,7 @@
       padding: 12px 16px 4px;
       font-size: 0.65rem; font-weight: 700;
       letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--text-faint);
-      flex-shrink: 0;
+      color: var(--text-faint); flex-shrink: 0;
     }
 
     .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
@@ -147,67 +169,67 @@
     .sidebar-scroll::-webkit-scrollbar { width: 3px; }
     .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+    /* Project sidebar items */
     .sidebar-item {
-      padding: 9px 10px; border-radius: var(--radius);
-      cursor: pointer; transition: background 0.1s;
-      margin-bottom: 1px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: var(--radius);
+      cursor: pointer; transition: background 0.1s; margin-bottom: 1px;
     }
     .sidebar-item:hover { background: var(--bg); }
     .sidebar-item.active { background: var(--primary-light); }
 
-    .sidebar-item .si-url {
-      font-size: 0.8rem; font-weight: 500; color: var(--text);
+    .si-favicon {
+      width: 26px; height: 26px; border-radius: 6px;
+      object-fit: contain; flex-shrink: 0;
+      background: var(--bg); border: 1px solid var(--border-subtle);
+    }
+    .si-favicon-placeholder {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--primary-light); border: 1px solid var(--primary-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: var(--primary);
+      flex-shrink: 0;
+    }
+    .si-info { flex: 1; min-width: 0; }
+    .si-name {
+      font-size: 0.8rem; font-weight: 600; color: var(--text);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      display: block; margin-bottom: 4px;
+      display: block; line-height: 1.3;
     }
-    .sidebar-item.active .si-url { color: var(--primary); }
-
-    .si-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-    .si-date { font-size: 0.7rem; color: var(--text-faint); font-weight: 400; }
-
-    .si-grade {
-      font-size: 0.62rem; font-weight: 700; padding: 2px 7px;
-      border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;
-      white-space: nowrap;
+    .sidebar-item.active .si-name { color: var(--primary); }
+    .si-domain {
+      font-size: 0.69rem; color: var(--text-faint);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: block;
     }
-    .si-grade-poor     { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-    .si-grade-ok       { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-    .si-grade-good     { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
-    .si-grade-excellent{ background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .si-count {
+      font-size: 0.65rem; font-weight: 600; color: var(--text-faint);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1px 6px; flex-shrink: 0;
+    }
+    .sidebar-item.active .si-count { background: rgba(17,15,214,0.08); border-color: var(--primary-border); color: var(--primary); }
 
     .sidebar-empty { padding: 12px 16px; font-size: 0.8rem; color: var(--text-faint); }
 
     /* ── SIDEBAR CTA ── */
     .sidebar-cta {
       margin: 8px 12px 14px;
-      border-radius: var(--radius-lg);
-      padding: 16px;
+      border-radius: var(--radius-lg); padding: 16px;
       background: linear-gradient(145deg, #eef0ff 0%, #f3f0ff 100%);
-      border: 1px solid var(--primary-border);
-      flex-shrink: 0;
+      border: 1px solid var(--primary-border); flex-shrink: 0;
     }
     .sidebar-cta-icon {
-      width: 32px; height: 32px;
-      background: var(--primary);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; background: var(--primary);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
       margin-bottom: 10px;
     }
     .sidebar-cta-icon svg { width: 16px; height: 16px; stroke: #fff; }
-    .sidebar-cta p {
-      font-size: 0.775rem; font-weight: 600;
-      color: #1e1b4b; line-height: 1.45;
-      margin-bottom: 12px;
-    }
+    .sidebar-cta p { font-size: 0.775rem; font-weight: 600; color: #1e1b4b; line-height: 1.45; margin-bottom: 12px; }
     .sidebar-cta-btn {
       display: block; text-align: center;
-      background: var(--primary); color: #fff;
-      border-radius: var(--radius);
-      padding: 9px 14px;
-      font-size: 0.8rem; font-weight: 600;
-      text-decoration: none;
-      transition: background 0.15s;
-      font-family: inherit;
+      background: var(--primary); color: #fff; border-radius: var(--radius);
+      padding: 9px 14px; font-size: 0.8rem; font-weight: 600;
+      text-decoration: none; transition: background 0.15s; font-family: inherit;
       box-shadow: 0 1px 2px rgba(17,15,214,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
       letter-spacing: -0.01em;
     }
@@ -216,50 +238,8 @@
     /* ── MAIN ── */
     .main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    .url-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
-      display: flex; gap: 8px; align-items: center;
-      flex-shrink: 0;
-    }
-    .url-bar-inner {
-      flex: 1; display: flex; align-items: center;
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .url-bar-inner:focus-within {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(17,15,214,0.08);
-      background: #fff;
-    }
-    .url-bar-prefix {
-      padding: 0 0 0 12px;
-      font-size: 0.875rem; color: var(--text-faint);
-      white-space: nowrap; user-select: none;
-    }
-    .url-bar input {
-      flex: 1; border: none; outline: none;
-      padding: 9px 12px; font-size: 0.875rem;
-      color: var(--text); background: transparent;
-      font-family: inherit;
-    }
-    .url-bar input::placeholder { color: var(--text-faint); }
-    .url-bar button {
-      background: var(--primary); color: #fff; border: none;
-      border-radius: var(--radius); padding: 9px 18px;
-      font-size: 0.85rem; font-weight: 600; cursor: pointer;
-      white-space: nowrap; display: flex; align-items: center; gap: 6px;
-      transition: background 0.15s, opacity 0.15s;
-      font-family: inherit; letter-spacing: -0.01em; flex-shrink: 0;
-      box-shadow: 0 1px 2px rgba(17,15,214,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
-    }
-    .url-bar button:hover:not(:disabled) { background: var(--primary-hover); }
-    .url-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
-
     /* ── CONTENT ── */
-    .content { flex: 1; overflow-y: auto; padding: 28px 28px 52px; }
+    .content { flex: 1; overflow-y: auto; }
     .content::-webkit-scrollbar { width: 5px; }
     .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
@@ -267,8 +247,7 @@
     .empty-state {
       height: 100%; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      text-align: center; gap: 10px; color: var(--text-faint);
-      padding-bottom: 60px;
+      text-align: center; gap: 10px; color: var(--text-faint); padding-bottom: 60px;
     }
     .empty-icon {
       width: 48px; height: 48px; background: var(--primary-light);
@@ -279,6 +258,141 @@
     .empty-icon svg { width: 22px; height: 22px; }
     .empty-state h2 { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); letter-spacing: -0.01em; }
     .empty-state p { font-size: 0.825rem; max-width: 280px; line-height: 1.6; color: var(--text-faint); }
+    .empty-state .btn-primary { margin-top: 4px; flex: none; padding: 10px 20px; }
+
+    /* ── PROJECT VIEW ── */
+    .project-view { display: flex; flex-direction: column; height: 100%; }
+
+    .project-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 20px 28px; display: flex; align-items: center; gap: 14px;
+      flex-shrink: 0;
+    }
+    .project-favicon-lg {
+      width: 40px; height: 40px; border-radius: 10px;
+      object-fit: contain; background: var(--bg);
+      border: 1px solid var(--border); flex-shrink: 0;
+    }
+    .project-favicon-placeholder {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--primary-light); border: 1px solid var(--primary-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; color: var(--primary); flex-shrink: 0;
+    }
+    .project-header-info { flex: 1; min-width: 0; }
+    .project-header-info h1 {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      letter-spacing: -0.02em; margin-bottom: 2px;
+    }
+    .project-header-info span { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Audit input section (within project) */
+    .audit-input-section {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 20px 28px; flex-shrink: 0;
+    }
+    .audit-input-section h2 {
+      font-size: 0.875rem; font-weight: 600; color: var(--text);
+      letter-spacing: -0.01em; margin-bottom: 12px;
+    }
+    .audit-url-row { display: flex; gap: 8px; align-items: center; }
+    .audit-url-inner {
+      flex: 1; display: flex; align-items: center;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .audit-url-inner:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(17,15,214,0.08);
+      background: #fff;
+    }
+    .audit-url-prefix {
+      padding: 0 0 0 12px; font-size: 0.875rem; color: var(--text-faint);
+      white-space: nowrap; user-select: none;
+    }
+    .audit-url-input {
+      flex: 1; border: none; outline: none;
+      padding: 9px 12px; font-size: 0.875rem;
+      color: var(--text); background: transparent; font-family: inherit;
+    }
+    .audit-url-input::placeholder { color: var(--text-faint); }
+    .audit-btn {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: var(--radius); padding: 9px 18px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      white-space: nowrap; display: flex; align-items: center; gap: 6px;
+      transition: background 0.15s, opacity 0.15s;
+      font-family: inherit; letter-spacing: -0.01em; flex-shrink: 0;
+      box-shadow: 0 1px 2px rgba(17,15,214,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .audit-btn:hover:not(:disabled) { background: var(--primary-hover); }
+    .audit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Audited pages list */
+    .audit-pages-section { flex: 1; overflow-y: auto; padding: 20px 28px 40px; }
+    .audit-pages-section::-webkit-scrollbar { width: 5px; }
+    .audit-pages-section::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .audit-pages-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px;
+    }
+    .audit-pages-empty {
+      font-size: 0.85rem; color: var(--text-faint);
+      padding: 32px 0; text-align: center;
+    }
+    .audit-page-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 8px;
+      cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s;
+      box-shadow: var(--shadow-xs);
+    }
+    .audit-page-item:hover { box-shadow: var(--shadow-sm); border-color: #d1d5db; }
+    .audit-page-left { flex: 1; min-width: 0; }
+    .audit-page-url {
+      font-size: 0.875rem; font-weight: 500; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: block; margin-bottom: 3px;
+    }
+    .audit-page-date { font-size: 0.75rem; color: var(--text-faint); }
+    .audit-page-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .grade-badge {
+      font-size: 0.67rem; font-weight: 700; padding: 3px 9px;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+    }
+    .grade-badge-poor     { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .grade-badge-ok       { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .grade-badge-good     { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+    .grade-badge-excellent{ background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+
+    .chevron-icon { color: var(--text-faint); }
+
+    /* ── AUDIT RESULT VIEW ── */
+    .audit-result-view { display: flex; flex-direction: column; height: 100%; }
+
+    .audit-result-topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 12px 24px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.82rem; font-weight: 500; color: var(--text-muted);
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; padding: 5px 8px; border-radius: 6px;
+      transition: background 0.12s, color 0.12s;
+    }
+    .back-btn:hover { background: var(--bg); color: var(--text); }
+    .back-btn svg { width: 14px; height: 14px; }
+    .topbar-divider { width: 1px; height: 16px; background: var(--border); }
+    .topbar-url { font-size: 0.82rem; color: var(--text-muted); font-weight: 400; }
+    .topbar-url strong { color: var(--text); font-weight: 600; }
+
+    .audit-result-scroll { flex: 1; overflow-y: auto; padding: 24px 28px 52px; }
+    .audit-result-scroll::-webkit-scrollbar { width: 5px; }
+    .audit-result-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
     /* ── LOADING ── */
     .loading-state {
@@ -288,38 +402,23 @@
     }
     .loading-label {
       font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--text-faint);
-      margin-bottom: 2px;
+      text-transform: uppercase; color: var(--text-faint); margin-bottom: 2px;
     }
-    .loading-bar-row {
-      display: flex; align-items: center; gap: 10px; width: 340px; max-width: 90vw;
-    }
-    .loading-bar-wrap {
-      flex: 1; height: 5px;
-      background: var(--primary-light);
-      border-radius: 99px; overflow: hidden;
-    }
-    .loading-bar-fill {
-      height: 100%; background: var(--primary);
-      border-radius: 99px;
-      width: 0%; transition: width 0.25s ease;
-    }
-    .loading-percent {
-      font-size: 0.8rem; font-weight: 700;
-      color: var(--primary); min-width: 34px; text-align: right;
-    }
+    .loading-bar-row { display: flex; align-items: center; gap: 10px; width: 340px; max-width: 90vw; }
+    .loading-bar-wrap { flex: 1; height: 5px; background: var(--primary-light); border-radius: 99px; overflow: hidden; }
+    .loading-bar-fill { height: 100%; background: var(--primary); border-radius: 99px; width: 0%; transition: width 0.25s ease; }
+    .loading-percent { font-size: 0.8rem; font-weight: 700; color: var(--primary); min-width: 34px; text-align: right; }
     .loading-message {
       font-size: 0.85rem; color: var(--text-muted);
       text-align: center; max-width: 320px; line-height: 1.5;
-      transition: opacity 0.3s ease;
-      min-height: 1.3em;
+      transition: opacity 0.3s ease; min-height: 1.3em;
     }
 
     /* ── AUDIT HEADER ── */
     .audit-header { margin-bottom: 20px; }
     .audit-header h1 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.02em; }
     .audit-meta { display: flex; align-items: center; gap: 8px; font-size: 0.775rem; color: var(--text-muted); flex-wrap: wrap; }
-    .audit-url { color: var(--primary); font-weight: 500; word-break: break-all; }
+    .audit-url-text { color: var(--primary); font-weight: 500; word-break: break-all; }
     .audit-score-summary {
       font-size: 0.72rem; background: var(--surface); border: 1px solid var(--border);
       border-radius: 20px; padding: 2px 9px; color: var(--text-muted); font-weight: 500;
@@ -327,19 +426,17 @@
     }
     .meta-dot { color: var(--border); }
 
+    /* ── SECTIONS GRID ── */
     .sections-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-items: start;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; align-items: start;
     }
     .full-width { grid-column: 1 / -1; }
 
     /* ── GRADE CARD ── */
     .grade-card {
       border-radius: var(--radius-lg); padding: 24px 28px;
-      display: flex; flex-direction: column; gap: 0;
-      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; gap: 0; box-shadow: var(--shadow-sm);
     }
     .grade-card.poor     { background: #fef2f2; border: 1px solid #fca5a5; }
     .grade-card.ok       { background: #fffbeb; border: 1px solid #fcd34d; }
@@ -356,17 +453,13 @@
     .grade-card.excellent .grade-word, .grade-card.excellent .grade-label { color: #059669; }
 
     .grade-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-    .grade-score-pill {
-      font-size: 0.95rem; font-weight: 800; letter-spacing: -0.03em;
-      padding: 6px 14px; border-radius: 20px;
-    }
+    .grade-score-pill { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.03em; padding: 6px 14px; border-radius: 20px; }
     .grade-section-count { font-size: 0.75rem; font-weight: 500; opacity: 0.6; }
 
     .grade-card.poor      .grade-score-pill { background: rgba(220,38,38,0.1); color: #dc2626; }
     .grade-card.ok        .grade-score-pill { background: rgba(146,64,14,0.1);  color: #92400e; }
     .grade-card.good      .grade-score-pill { background: rgba(17,15,214,0.1);  color: var(--primary); }
     .grade-card.excellent .grade-score-pill { background: rgba(5,150,105,0.1);  color: #059669; }
-
     .grade-card.poor      .grade-section-count { color: #dc2626; }
     .grade-card.ok        .grade-section-count { color: #92400e; }
     .grade-card.good      .grade-section-count { color: var(--primary); }
@@ -382,30 +475,24 @@
 
     /* ── SECTION CARDS ── */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-xs);
-      transition: box-shadow 0.15s;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-xs); transition: box-shadow 0.15s;
     }
     .card:hover { box-shadow: var(--shadow-sm); }
 
     .card-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       background: #fcfcfd;
     }
     .card-title-row { display: flex; align-items: center; gap: 9px; }
-
     .card-icon {
       width: 26px; height: 26px; border-radius: 7px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       background: var(--primary-light); border: 1px solid var(--primary-border);
     }
     .card-icon svg { width: 13px; height: 13px; stroke: var(--primary); }
-
     .card-title { font-size: 0.84rem; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
 
     .verdict-badge {
@@ -413,67 +500,50 @@
       padding: 3px 9px; border-radius: 20px; text-transform: uppercase; white-space: nowrap;
       display: inline-flex; align-items: center; gap: 4px;
     }
-    .verdict-badge::before {
-      content: "";
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      display: inline-block;
-    }
+    .verdict-badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
     .verdict-pass { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
     .verdict-pass::before { background: #10b981; }
     .verdict-fail { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
     .verdict-fail::before { background: #ef4444; }
 
-    .card-body {
-      padding: 16px 18px;
-      font-size: 0.855rem; line-height: 1.8; color: var(--text-secondary);
-    }
+    .card-body { padding: 16px 18px; font-size: 0.855rem; line-height: 1.8; color: var(--text-secondary); }
     .card-body p { margin-bottom: 8px; }
     .card-body p:last-child { margin-bottom: 0; }
     .card-body ul { padding-left: 18px; margin: 6px 0; }
     .card-body li { margin-bottom: 5px; }
     .cb-bold { font-weight: 600; color: var(--text); }
     .card-body blockquote {
-      border-left: 2px solid var(--primary-mid);
-      padding: 4px 12px; margin: 8px 0;
+      border-left: 2px solid var(--primary-mid); padding: 4px 12px; margin: 8px 0;
       color: var(--text-muted); font-style: italic;
       background: var(--primary-light); border-radius: 0 6px 6px 0;
     }
     .cta-tag {
-      display: inline-block;
-      background: var(--primary-light); color: var(--primary);
-      border: 1px solid var(--primary-border);
-      border-radius: 5px; padding: 1px 7px;
+      display: inline-block; background: var(--primary-light); color: var(--primary);
+      border: 1px solid var(--primary-border); border-radius: 5px; padding: 1px 7px;
       font-size: 0.76rem; font-weight: 600; margin: 1px 2px;
     }
 
     /* ── ANALYTICS TOOL LIST ── */
     .analytics-grid {
       padding: 12px 16px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 8px;
     }
     .analytics-tool {
       display: flex; align-items: center; gap: 9px;
-      padding: 9px 12px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border-subtle);
-      background: var(--bg);
+      padding: 9px 12px; border-radius: var(--radius);
+      border: 1px solid var(--border-subtle); background: var(--bg);
     }
     .analytics-tool-icon {
       width: 20px; height: 20px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .analytics-tool-icon.detected  { background: #ecfdf5; }
-    .analytics-tool-icon.missing   { background: #fef2f2; }
+    .analytics-tool-icon.detected { background: #ecfdf5; }
+    .analytics-tool-icon.missing  { background: #fef2f2; }
     .analytics-tool-icon svg { width: 11px; height: 11px; }
-    .analytics-tool-icon.detected  svg { stroke: #059669; }
-    .analytics-tool-icon.missing   svg { stroke: #dc2626; }
-    .analytics-tool-name {
-      font-size: 0.8rem; font-weight: 500; color: var(--text);
-    }
+    .analytics-tool-icon.detected svg { stroke: #059669; }
+    .analytics-tool-icon.missing  svg { stroke: #dc2626; }
+    .analytics-tool-name { font-size: 0.8rem; font-weight: 500; color: var(--text); }
     .analytics-tool.missing .analytics-tool-name { color: var(--text-muted); }
 
     /* ── ACTION ITEMS ── */
@@ -486,11 +556,9 @@
     .action-item:last-child { border-bottom: none; }
     .action-item:hover { background: var(--bg); }
     .action-item.done { background: #fafbfc; }
-
     .action-item input[type="checkbox"] {
       appearance: none; -webkit-appearance: none;
-      width: 16px; height: 16px;
-      border: 1.5px solid var(--border); border-radius: 4px;
+      width: 16px; height: 16px; border: 1.5px solid var(--border); border-radius: 4px;
       cursor: pointer; flex-shrink: 0; margin-top: 2px;
       position: relative; transition: all 0.15s; background: #fff;
     }
@@ -508,8 +576,7 @@
     .error-card {
       background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-lg);
       padding: 16px 18px; color: #991b1b; font-size: 0.875rem;
-      display: flex; align-items: flex-start; gap: 10px;
-      box-shadow: var(--shadow-xs);
+      display: flex; align-items: flex-start; gap: 10px; box-shadow: var(--shadow-xs);
     }
     .error-card svg { width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px; }
   </style>
@@ -520,13 +587,37 @@
 <div class="modal-overlay" id="betaModal" style="display:none">
   <div class="modal">
     <div class="modal-beta-tag">Beta</div>
-    <img src="/saasy-logo-v2.png" alt="Saasy" />
+    <img class="modal-logo" src="/saasy-logo-v2.png" alt="Saasy" />
     <h2>Welcome to Saasy</h2>
     <ul style="text-align:left;font-size:0.875rem;color:var(--text-muted);line-height:1.65;margin-bottom:24px;padding-left:18px;">
       <li>All projects are currently stored in your browser.</li>
       <li>Some information may not be correct.</li>
     </ul>
-    <button onclick="dismissModal()">Got it</button>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="dismissBetaModal()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW PROJECT MODAL ── -->
+<div class="modal-overlay" id="newProjectModal" style="display:none">
+  <div class="modal" style="text-align:left">
+    <h2 style="margin-bottom:6px">New Project</h2>
+    <p style="margin-bottom:20px">Enter the company details to get started.</p>
+    <div class="modal-form">
+      <div class="form-field">
+        <label for="projectNameInput">Company Name</label>
+        <input id="projectNameInput" placeholder="Acme Corp" autocomplete="off" />
+      </div>
+      <div class="form-field">
+        <label for="projectDomainInput">Website Domain</label>
+        <input id="projectDomainInput" placeholder="acme.com" autocomplete="off" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeNewProjectModal()">Cancel</button>
+      <button class="btn-primary" onclick="createProject()">Create Project</button>
+    </div>
   </div>
 </div>
 
@@ -536,19 +627,18 @@
     <img src="/saasy-logo-v2.png" alt="Saasy" />
   </div>
 
-  <button class="sidebar-new-btn" id="newAuditBtn">
+  <button class="sidebar-new-btn" id="newProjectBtn">
     <span class="btn-icon">+</span>
-    New Audit
+    New Project
   </button>
 
-  <div class="sidebar-section-label" id="historyLabel" style="display:none">Audit History</div>
+  <div class="sidebar-section-label" id="projectsLabel" style="display:none">Projects</div>
 
   <div class="sidebar-scroll">
     <div class="sidebar-list" id="sidebarList">
-      <div class="sidebar-empty" id="sidebarEmpty">No audits yet.</div>
+      <div class="sidebar-empty" id="sidebarEmpty">No projects yet.</div>
     </div>
 
-    <!-- ── SIDEBAR CTA ── -->
     <div class="sidebar-cta">
       <div class="sidebar-cta-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -563,35 +653,14 @@
 
 <!-- ── MAIN ── -->
 <div class="main">
-  <div class="url-bar">
-    <div class="url-bar-inner">
-      <span class="url-bar-prefix">https://</span>
-      <input type="url" id="urlInput" placeholder="yourbusiness.com" autocomplete="off" />
-    </div>
-    <button id="auditBtn">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      Audit Site
-    </button>
-  </div>
-
   <div class="content" id="content">
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-        </svg>
-      </div>
-      <h2>Audit your website</h2>
-      <p>Enter a business URL above to run a full 12-point CRO audit and get a conversion score.</p>
-    </div>
+    <!-- Populated by JS -->
   </div>
 </div>
 
 <script>
 // ── Constants ──
-const STORAGE_KEY = "saasy_audits_v3";
+const STORAGE_KEY = "saasy_projects_v1";
 
 const SECTION_DEFS = [
   { key: "aboveFold",            title: "Above the Fold Clarity"   },
@@ -604,7 +673,6 @@ const SECTION_DEFS = [
   { key: "visualDesign",         title: "Visual Design & Layout"   },
   { key: "conversionFriction",   title: "Conversion Friction"      },
   { key: "mobileOpt",            title: "Mobile Optimization"      },
-  // abTesting rendered separately alongside Action Items
 ];
 
 const LOADING_MESSAGES = [
@@ -623,173 +691,290 @@ const LOADING_MESSAGES = [
 ];
 
 // ── State ──
-let audits = [];
-let currentId = null;
+let projects = [];
+let currentProjectId = null;
+let currentAuditId   = null;
 let progressInterval = null;
 let messageInterval  = null;
 let currentProgress  = 0;
 
-function loadAudits() {
-  try { audits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { audits = []; }
+function loadProjects() {
+  try { projects = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { projects = []; }
 }
-function saveAudits() { localStorage.setItem(STORAGE_KEY, JSON.stringify(audits)); }
+function saveProjects() { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); }
+function getProject(id) { return projects.find(p => p.id === id); }
 
 // ── DOM refs ──
-const urlInput    = document.getElementById("urlInput");
-const auditBtn    = document.getElementById("auditBtn");
-const content     = document.getElementById("content");
-const sidebarList = document.getElementById("sidebarList");
-const sidebarEmpty= document.getElementById("sidebarEmpty");
-const historyLabel= document.getElementById("historyLabel");
-const newAuditBtn = document.getElementById("newAuditBtn");
+const content       = document.getElementById("content");
+const sidebarList   = document.getElementById("sidebarList");
+const sidebarEmpty  = document.getElementById("sidebarEmpty");
+const projectsLabel = document.getElementById("projectsLabel");
 
-// ── Sidebar ──
+// ── Favicon helper ──
+function faviconUrl(domain) {
+  const d = domain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  return `https://www.google.com/s2/favicons?domain=${d}&sz=64`;
+}
+
+function faviconImg(domain, cls) {
+  const initial = domain ? domain[0].toUpperCase() : "?";
+  if (!domain) return `<div class="${cls}-placeholder">${initial}</div>`;
+  return `<img class="${cls}" src="${faviconUrl(domain)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="${cls}-placeholder" style="display:none">${initial}</div>`;
+}
+
+// ── Grade helpers ──
 function gradeClass(grade) {
   if (!grade) return "";
   const g = grade.toLowerCase();
-  if (g === "poor") return "poor";
-  if (g === "ok") return "ok";
-  if (g === "good") return "good";
-  if (g === "excellent") return "excellent";
-  return "";
+  return ["poor","ok","good","excellent"].includes(g) ? g : "";
+}
+function gradeBadgeHtml(grade) {
+  const gc = gradeClass(grade);
+  if (!gc) return "";
+  return `<span class="grade-badge grade-badge-${gc}">${grade}</span>`;
 }
 
+// ── Sidebar ──
 function renderSidebar() {
-  const hasAudits = audits.length > 0;
-  sidebarEmpty.style.display  = hasAudits ? "none" : "block";
-  historyLabel.style.display  = hasAudits ? "block" : "none";
+  const has = projects.length > 0;
+  sidebarEmpty.style.display  = has ? "none" : "block";
+  projectsLabel.style.display = has ? "block" : "none";
   sidebarList.querySelectorAll(".sidebar-item").forEach(el => el.remove());
 
-  audits.forEach(audit => {
+  projects.forEach(project => {
     const el = document.createElement("div");
-    el.className = "sidebar-item" + (audit.id === currentId ? " active" : "");
-    el.dataset.id = audit.id;
+    el.className = "sidebar-item" + (project.id === currentProjectId ? " active" : "");
 
-    const urlDisplay = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    const date = new Date(audit.id).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    const gc   = gradeClass(audit.sections?.grade);
-    const gradeBadge = gc
-      ? `<span class="si-grade si-grade-${gc}">${audit.sections.grade}</span>`
-      : "";
-
+    const count = project.audits.length;
     el.innerHTML = `
-      <span class="si-url">${urlDisplay}</span>
-      <div class="si-meta">
-        <span class="si-date">${date}</span>
-        ${gradeBadge}
-      </div>`;
-    el.addEventListener("click", () => showAudit(audit.id));
+      ${faviconImg(project.domain, "si-favicon")}
+      <div class="si-info">
+        <span class="si-name">${project.name}</span>
+        <span class="si-domain">${project.domain}</span>
+      </div>
+      ${count > 0 ? `<span class="si-count">${count}</span>` : ""}
+    `;
+    el.addEventListener("click", () => openProject(project.id));
     sidebarList.appendChild(el);
   });
 }
 
-// ── Parse sections ──
-function parseSections(raw) {
-  const get = (tag) => {
-    const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, "i"));
-    return m ? m[1].trim() : null;
-  };
+// ── New Project Modal ──
+document.getElementById("newProjectBtn").addEventListener("click", () => {
+  document.getElementById("newProjectModal").style.display = "flex";
+  document.getElementById("projectNameInput").value = "";
+  document.getElementById("projectDomainInput").value = "";
+  setTimeout(() => document.getElementById("projectNameInput").focus(), 50);
+});
 
-  const actionsRaw = get("ACTIONS");
-  const actions = actionsRaw
-    ? actionsRaw.split("\n").map(l => l.trim())
-        .filter(l => l.startsWith("-") || l.match(/^\d+\./))
-        .map(l => l.replace(/^[-\d.]+\s*/, "").trim())
-        .filter(Boolean)
-    : [];
+function closeNewProjectModal() {
+  document.getElementById("newProjectModal").style.display = "none";
+}
 
-  const gradeRaw = get("GRADE");
-  let score = 0, grade = "", gradeDescription = "";
-  if (gradeRaw) {
-    const sm = gradeRaw.match(/SCORE:\s*([\d.]+)/i);
-    const gm = gradeRaw.match(/GRADE:\s*(Poor|Ok|Good|Excellent)/i);
-    const dm = gradeRaw.match(/DESCRIPTION:\s*([\s\S]+)/i);
-    if (sm) score = parseFloat(sm[1]);
-    if (gm) grade = gm[1];
-    if (dm) gradeDescription = dm[1].trim();
+document.getElementById("newProjectModal").addEventListener("click", e => {
+  if (e.target === e.currentTarget) closeNewProjectModal();
+});
+
+document.getElementById("newProjectModal").addEventListener("keydown", e => {
+  if (e.key === "Escape") closeNewProjectModal();
+  if (e.key === "Enter") createProject();
+});
+
+function createProject() {
+  const name   = document.getElementById("projectNameInput").value.trim();
+  const domain = document.getElementById("projectDomainInput").value.trim()
+    .replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  if (!name) { document.getElementById("projectNameInput").focus(); return; }
+  if (!domain) { document.getElementById("projectDomainInput").focus(); return; }
+
+  const project = { id: Date.now(), name, domain, audits: [] };
+  projects.unshift(project);
+  saveProjects();
+  closeNewProjectModal();
+  currentProjectId = project.id;
+  currentAuditId   = null;
+  renderSidebar();
+  showProjectView(project.id);
+}
+
+// ── Project view ──
+function openProject(id) {
+  currentProjectId = id;
+  currentAuditId   = null;
+  renderSidebar();
+  showProjectView(id);
+}
+
+function showProjectView(id) {
+  const project = getProject(id);
+  if (!project) return;
+
+  const auditListHtml = project.audits.length === 0
+    ? `<div class="audit-pages-empty">No landing pages audited yet. Enter a URL above to get started.</div>`
+    : project.audits.map(audit => {
+        const urlDisplay = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+        const date = new Date(audit.id).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        return `
+          <div class="audit-page-item" onclick="openAudit('${id}', ${audit.id})">
+            <div class="audit-page-left">
+              <span class="audit-page-url">${urlDisplay}</span>
+              <span class="audit-page-date">${date}</span>
+            </div>
+            <div class="audit-page-right">
+              ${gradeBadgeHtml(audit.sections?.grade)}
+              <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+  content.innerHTML = `
+    <div class="project-view">
+      <div class="project-header">
+        ${faviconImg(project.domain, "project-favicon-lg")}
+        <div class="project-header-info">
+          <h1>${project.name}</h1>
+          <span>${project.domain}</span>
+        </div>
+      </div>
+      <div class="audit-input-section">
+        <h2>Audit a landing page</h2>
+        <div class="audit-url-row">
+          <div class="audit-url-inner">
+            <span class="audit-url-prefix">https://</span>
+            <input class="audit-url-input" id="auditUrlInput" placeholder="${project.domain}/your-page" autocomplete="off" />
+          </div>
+          <button class="audit-btn" id="auditSubmitBtn" onclick="runAudit('${id}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            Audit Landing Page
+          </button>
+        </div>
+      </div>
+      <div class="audit-pages-section">
+        <div class="audit-pages-label">${project.audits.length > 0 ? "Audited Landing Pages" : ""}</div>
+        ${auditListHtml}
+      </div>
+    </div>
+  `;
+
+  const input = document.getElementById("auditUrlInput");
+  if (input) {
+    input.addEventListener("keydown", e => { if (e.key === "Enter") runAudit(id); });
+    input.focus();
+  }
+}
+
+// ── Audit result view ──
+function openAudit(projectId, auditId) {
+  const project = getProject(projectId);
+  if (!project) return;
+  const audit = project.audits.find(a => a.id === auditId);
+  if (!audit) return;
+  currentAuditId = auditId;
+  renderAuditResultView(project, audit);
+}
+
+function renderAuditResultView(project, audit) {
+  const urlDisplay = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const dateStr = new Date(audit.id).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" });
+  const { sections } = audit;
+  const gc = gradeClass(sections.grade);
+  const passes = countPasses(sections);
+
+  let sectionsHtml = "";
+
+  if (sections.grade) {
+    sectionsHtml += `
+      <div class="grade-card ${gc} full-width">
+        <div class="grade-top">
+          <div class="grade-left">
+            <div class="grade-label">Overall Grade</div>
+            <div class="grade-word">${sections.grade.toUpperCase()}</div>
+          </div>
+          <div class="grade-right">
+            <div class="grade-score-pill">${Number(sections.score || 0).toFixed(2)} / 100</div>
+            <div class="grade-section-count">${passes} of 12 sections passed</div>
+          </div>
+        </div>
+        <div class="grade-divider"></div>
+        <div class="grade-description">${sections.gradeDescription || ""}</div>
+      </div>
+    `;
   }
 
-  return {
-    actions, score, grade, gradeDescription,
-    analytics:            get("ANALYTICS"),
-    aboveFold:            get("ABOVE_FOLD"),
-    ctaStructure:         get("CTA_STRUCTURE"),
-    messagingCopy:        get("MESSAGING_COPY"),
-    productUnderstanding: get("PRODUCT_UNDERSTANDING"),
-    socialProof:          get("SOCIAL_PROOF"),
-    offerClarity:         get("OFFER_CLARITY"),
-    objectionHandling:    get("OBJECTION_HANDLING"),
-    visualDesign:         get("VISUAL_DESIGN"),
-    conversionFriction:   get("CONVERSION_FRICTION"),
-    mobileOpt:            get("MOBILE_OPTIMIZATION"),
-    abTesting:            get("AB_TESTING"),
-  };
-}
-
-function extractVerdict(text) {
-  if (!text) return null;
-  if (text.match(/VERDICT:\s*PASS/i)) return "pass";
-  if (text.match(/VERDICT:\s*FAIL/i)) return "fail";
-  return null;
-}
-
-function countPasses(sections) {
-  const keys = ["analytics","aboveFold","ctaStructure","messagingCopy",
-    "productUnderstanding","socialProof","offerClarity","objectionHandling",
-    "visualDesign","conversionFriction","mobileOpt","abTesting"];
-  return keys.filter(k => extractVerdict(sections[k]) === "pass").length;
-}
-
-// ── Format section body text ──
-function formatText(text) {
-  if (!text) return "";
-  const lines = text.split("\n");
-  let html = "";
-  let inList = false;
-
-  for (const raw of lines) {
-    let line = raw.trim();
-    if (!line) {
-      if (inList) { html += "</ul>"; inList = false; }
-      continue;
-    }
-    if (line.match(/^VERDICT:\s*(PASS|FAIL)/i)) continue;
-
-    if (line.match(/^[-•*]\s+/) || line.match(/^\d+\.\s+/)) {
-      if (!inList) { html += "<ul>"; inList = true; }
-      let item = line.replace(/^[-•*]\s+/, "").replace(/^\d+\.\s+/, "");
-      html += `<li>${formatInline(item)}</li>`;
-      continue;
-    }
-    if (inList) { html += "</ul>"; inList = false; }
-
-    if (line.match(/^[""][^""]{5,}[""]/)) {
-      html += `<blockquote>${line.replace(/[""]/g, "")}</blockquote>`;
-      continue;
-    }
-    if (line.match(/^\*\*[^*]+\*\*$/) || line.match(/^[A-Z][A-Z\s&]+:$/)) {
-      html += `<p><span class="cb-bold">${line.replace(/\*\*/g, "")}</span></p>`;
-      continue;
-    }
-
-    line = line.replace(/"([^"]{3,30})"/g, (_, cta) => {
-      if (cta.split(" ").length <= 5 && /^[A-Z]/.test(cta))
-        return `<span class="cta-tag">${cta}</span>`;
-      return `"${cta}"`;
-    });
-
-    html += `<p>${formatInline(line)}</p>`;
+  if (sections.actions?.length > 0) {
+    const checkedItems = new Set(sections.checkedItems || []);
+    sectionsHtml += `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+              </svg>
+            </div>
+            <span class="card-title">Action Items</span>
+          </div>
+          <span style="font-size:0.72rem;color:var(--text-faint);font-weight:500">${sections.actions.length} item${sections.actions.length !== 1 ? "s" : ""}</span>
+        </div>
+        <div class="action-list">
+          ${sections.actions.map((item, i) => `
+            <label class="action-item${checkedItems.has(i) ? " done" : ""}" data-idx="${i}">
+              <input type="checkbox" ${checkedItems.has(i) ? "checked" : ""} onchange="toggleCheck('${project.id}', ${audit.id}, ${i}, this)" />
+              <span class="action-text">${item}</span>
+            </label>
+          `).join("")}
+        </div>
+      </div>
+    `;
   }
 
-  if (inList) html += "</ul>";
-  return html;
-}
+  if (sections.abTesting) {
+    sectionsHtml += sectionCard("A/B Test Recommendations", sections.abTesting, "pass", abTestIcon());
+  }
 
-function formatInline(text) {
-  return text
-    .replace(/\*\*([^*]+)\*\*/g, '<span class="cb-bold">$1</span>')
-    .replace(/`([^`]+)`/g, '<code style="background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:0.82em;font-family:ui-monospace,monospace">$1</code>');
+  if (sections.analyticsTools) {
+    sectionsHtml += `<div class="full-width">${renderAnalyticsCard(sections.analyticsTools)}</div>`;
+  } else if (sections.analytics) {
+    sectionsHtml += `<div class="full-width">${sectionCard("Analytics & Tracking", sections.analytics, extractVerdict(sections.analytics), analyticsIcon())}</div>`;
+  }
+
+  for (const def of SECTION_DEFS) {
+    const text = sections[def.key];
+    if (!text) continue;
+    sectionsHtml += sectionCard(def.title, text, extractVerdict(text), defaultIcon());
+  }
+
+  content.innerHTML = `
+    <div class="audit-result-view">
+      <div class="audit-result-topbar">
+        <button class="back-btn" onclick="openProject('${project.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          ${project.name}
+        </button>
+        <div class="topbar-divider"></div>
+        <span class="topbar-url">${urlDisplay}</span>
+        ${passes > 0 ? `<span class="audit-score-summary">${passes}/12 passed</span>` : ""}
+      </div>
+      <div class="audit-result-scroll">
+        <div class="audit-header">
+          <h1>Landing Page Audit</h1>
+          <div class="audit-meta">
+            <span class="audit-url-text">${urlDisplay}</span>
+            <span class="meta-dot">·</span>
+            <span>${dateStr}</span>
+          </div>
+        </div>
+        <div class="sections-grid">${sectionsHtml}</div>
+      </div>
+    </div>
+  `;
 }
 
 // ── Render analytics tool list ──
@@ -825,106 +1010,13 @@ function renderAnalyticsCard(tools) {
   `;
 }
 
-// ── Render audit ──
-function renderAuditView(audit) {
-  const { url, sections, id } = audit;
-  const gc = gradeClass(sections.grade);
-  const passes = countPasses(sections);
-  const urlDisplay = url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const dateStr = new Date(id).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" });
-
-  let html = `
-    <div class="audit-header">
-      <h1>CRO Audit</h1>
-      <div class="audit-meta">
-        <span class="audit-url">${urlDisplay}</span>
-        <span class="meta-dot">·</span>
-        <span>${dateStr}</span>
-        ${passes > 0 ? `<span class="audit-score-summary">${passes}/12 passed</span>` : ""}
-      </div>
-    </div>
-    <div class="sections-grid">
-  `;
-
-  // 1. GRADE — full width
-  if (sections.grade) {
-    html += `
-      <div class="grade-card ${gc} full-width">
-        <div class="grade-top">
-          <div class="grade-left">
-            <div class="grade-label">Overall Grade</div>
-            <div class="grade-word">${sections.grade.toUpperCase()}</div>
-          </div>
-          <div class="grade-right">
-            <div class="grade-score-pill">${Number(sections.score || 0).toFixed(2)} / 100</div>
-            <div class="grade-section-count">${passes} of 12 sections passed</div>
-          </div>
-        </div>
-        <div class="grade-divider"></div>
-        <div class="grade-description">${sections.gradeDescription || ""}</div>
-      </div>
-    `;
-  }
-
-  // 2. ACTION ITEMS (left) + A/B TESTING (right) — side by side
-  if (sections.actions?.length > 0) {
-    const checkedItems = new Set(sections.checkedItems || []);
-    html += `
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-row">
-            <div class="card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-              </svg>
-            </div>
-            <span class="card-title">Action Items</span>
-          </div>
-          <span style="font-size:0.72rem;color:var(--text-faint);font-weight:500">${sections.actions.length} item${sections.actions.length !== 1 ? "s" : ""}</span>
-        </div>
-        <div class="action-list">
-          ${sections.actions.map((item, i) => `
-            <label class="action-item${checkedItems.has(i) ? " done" : ""}" data-idx="${i}">
-              <input type="checkbox" ${checkedItems.has(i) ? "checked" : ""} onchange="toggleCheck(${id}, ${i}, this)" />
-              <span class="action-text">${item}</span>
-            </label>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  }
-
-  if (sections.abTesting) {
-    html += sectionCard("A/B Test Recommendations", sections.abTesting, "pass", abTestIcon());
-  }
-
-  // 3. ANALYTICS — full width
-  if (sections.analyticsTools) {
-    html += `<div class="full-width">${renderAnalyticsCard(sections.analyticsTools)}</div>`;
-  } else if (sections.analytics) {
-    const v = extractVerdict(sections.analytics);
-    html += `<div class="full-width">${sectionCard("Analytics & Tracking", sections.analytics, v, analyticsIcon())}</div>`;
-  }
-
-  // 4+. REMAINING SECTIONS — 2-column grid
-  for (const def of SECTION_DEFS) {
-    const text = sections[def.key];
-    if (!text) continue;
-    const v = extractVerdict(text);
-    html += sectionCard(def.title, text, v, defaultIcon());
-  }
-
-  html += `</div>`;
-  content.innerHTML = html;
-}
-
+// ── Section card ──
 function sectionCard(title, text, verdict, iconSvg) {
   const badge = verdict === "pass"
     ? `<span class="verdict-badge verdict-pass">Pass</span>`
     : verdict === "fail"
     ? `<span class="verdict-badge verdict-fail">Fail</span>`
     : "";
-
   return `
     <div class="card">
       <div class="card-header">
@@ -939,6 +1031,7 @@ function sectionCard(title, text, verdict, iconSvg) {
   `;
 }
 
+// ── Icons ──
 function defaultIcon() {
   return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
@@ -955,32 +1048,101 @@ function abTestIcon() {
   </svg>`;
 }
 
-// ── Toggle checkbox ──
-function toggleCheck(auditId, index, checkbox) {
-  const audit = audits.find(a => a.id === auditId);
-  if (!audit) return;
-  const checked = new Set(audit.sections.checkedItems || []);
-  if (checkbox.checked) checked.add(index);
-  else checked.delete(index);
-  audit.sections.checkedItems = [...checked];
-  saveAudits();
-  checkbox.closest(".action-item")?.classList.toggle("done", checkbox.checked);
+// ── Format text ──
+function formatText(text) {
+  if (!text) return "";
+  const lines = text.split("\n");
+  let html = "", inList = false;
+  for (const raw of lines) {
+    let line = raw.trim();
+    if (!line) { if (inList) { html += "</ul>"; inList = false; } continue; }
+    if (line.match(/^VERDICT:\s*(PASS|FAIL)/i)) continue;
+    if (line.match(/^[-•*]\s+/) || line.match(/^\d+\.\s+/)) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += `<li>${formatInline(line.replace(/^[-•*]\s+/, "").replace(/^\d+\.\s+/, ""))}</li>`;
+      continue;
+    }
+    if (inList) { html += "</ul>"; inList = false; }
+    if (line.match(/^[""][^""]{5,}[""]/)) { html += `<blockquote>${line.replace(/[""]/g, "")}</blockquote>`; continue; }
+    if (line.match(/^\*\*[^*]+\*\*$/) || line.match(/^[A-Z][A-Z\s&]+:$/)) {
+      html += `<p><span class="cb-bold">${line.replace(/\*\*/g, "")}</span></p>`; continue;
+    }
+    line = line.replace(/"([^"]{3,30})"/g, (_, cta) => {
+      if (cta.split(" ").length <= 5 && /^[A-Z]/.test(cta)) return `<span class="cta-tag">${cta}</span>`;
+      return `"${cta}"`;
+    });
+    html += `<p>${formatInline(line)}</p>`;
+  }
+  if (inList) html += "</ul>";
+  return html;
+}
+function formatInline(text) {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '<span class="cb-bold">$1</span>')
+    .replace(/`([^`]+)`/g, '<code style="background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:0.82em;font-family:ui-monospace,monospace">$1</code>');
 }
 
-// ── Show saved audit ──
-function showAudit(id) {
-  const audit = audits.find(a => a.id === id);
+// ── Parse sections ──
+function parseSections(raw) {
+  const get = tag => { const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, "i")); return m ? m[1].trim() : null; };
+  const actionsRaw = get("ACTIONS");
+  const actions = actionsRaw
+    ? actionsRaw.split("\n").map(l => l.trim()).filter(l => l.startsWith("-") || l.match(/^\d+\./))
+        .map(l => l.replace(/^[-\d.]+\s*/, "").trim()).filter(Boolean)
+    : [];
+  const gradeRaw = get("GRADE");
+  let score = 0, grade = "", gradeDescription = "";
+  if (gradeRaw) {
+    const sm = gradeRaw.match(/SCORE:\s*([\d.]+)/i);
+    const gm = gradeRaw.match(/GRADE:\s*(Poor|Ok|Good|Excellent)/i);
+    const dm = gradeRaw.match(/DESCRIPTION:\s*([\s\S]+)/i);
+    if (sm) score = parseFloat(sm[1]);
+    if (gm) grade = gm[1];
+    if (dm) gradeDescription = dm[1].trim();
+  }
+  return {
+    actions, score, grade, gradeDescription,
+    analytics: get("ANALYTICS"), aboveFold: get("ABOVE_FOLD"),
+    ctaStructure: get("CTA_STRUCTURE"), messagingCopy: get("MESSAGING_COPY"),
+    productUnderstanding: get("PRODUCT_UNDERSTANDING"), socialProof: get("SOCIAL_PROOF"),
+    offerClarity: get("OFFER_CLARITY"), objectionHandling: get("OBJECTION_HANDLING"),
+    visualDesign: get("VISUAL_DESIGN"), conversionFriction: get("CONVERSION_FRICTION"),
+    mobileOpt: get("MOBILE_OPTIMIZATION"), abTesting: get("AB_TESTING"),
+  };
+}
+
+function extractVerdict(text) {
+  if (!text) return null;
+  if (text.match(/VERDICT:\s*PASS/i)) return "pass";
+  if (text.match(/VERDICT:\s*FAIL/i)) return "fail";
+  return null;
+}
+
+function countPasses(sections) {
+  return ["analytics","aboveFold","ctaStructure","messagingCopy",
+    "productUnderstanding","socialProof","offerClarity","objectionHandling",
+    "visualDesign","conversionFriction","mobileOpt","abTesting"]
+    .filter(k => extractVerdict(sections[k]) === "pass").length;
+}
+
+// ── Toggle checkbox ──
+function toggleCheck(projectId, auditId, index, checkbox) {
+  const project = getProject(projectId);
+  if (!project) return;
+  const audit = project.audits.find(a => a.id === auditId);
   if (!audit) return;
-  currentId = id;
-  renderAuditView(audit);
-  renderSidebar();
+  const checked = new Set(audit.sections.checkedItems || []);
+  if (checkbox.checked) checked.add(index); else checked.delete(index);
+  audit.sections.checkedItems = [...checked];
+  saveProjects();
+  checkbox.closest(".action-item")?.classList.toggle("done", checkbox.checked);
 }
 
 // ── Loading ──
 function showLoading() {
   content.innerHTML = `
     <div class="loading-state">
-      <div class="loading-label">Auditing</div>
+      <div class="loading-label">Auditing landing page</div>
       <div class="loading-bar-row">
         <div class="loading-bar-wrap">
           <div class="loading-bar-fill" id="loadingBarFill"></div>
@@ -997,20 +1159,20 @@ function showLoading() {
     const remaining = 94 - currentProgress;
     currentProgress += Math.max(remaining * 0.022, 0.08);
     currentProgress = Math.min(currentProgress, 94);
-    const barFill = document.getElementById("loadingBarFill");
-    const pct     = document.getElementById("loadingPercent");
-    if (barFill) barFill.style.width = currentProgress + "%";
-    if (pct)     pct.textContent = Math.round(currentProgress) + "%";
+    const bar = document.getElementById("loadingBarFill");
+    const pct = document.getElementById("loadingPercent");
+    if (bar) bar.style.width = currentProgress + "%";
+    if (pct) pct.textContent = Math.round(currentProgress) + "%";
   }, 220);
 
   messageInterval = setInterval(() => {
     msgIdx = (msgIdx + 1) % LOADING_MESSAGES.length;
-    const msgEl = document.getElementById("loadingMessage");
-    if (msgEl) {
-      msgEl.style.opacity = "0";
+    const el = document.getElementById("loadingMessage");
+    if (el) {
+      el.style.opacity = "0";
       setTimeout(() => {
-        const el = document.getElementById("loadingMessage");
-        if (el) { el.textContent = LOADING_MESSAGES[msgIdx]; el.style.opacity = "1"; }
+        const e = document.getElementById("loadingMessage");
+        if (e) { e.textContent = LOADING_MESSAGES[msgIdx]; e.style.opacity = "1"; }
       }, 300);
     }
   }, 2800);
@@ -1019,56 +1181,43 @@ function showLoading() {
 function stopLoading() {
   clearInterval(progressInterval);
   clearInterval(messageInterval);
-  progressInterval = null;
-  messageInterval  = null;
-  // Flash to 100%
-  const barFill = document.getElementById("loadingBarFill");
-  const pct     = document.getElementById("loadingPercent");
-  if (barFill) barFill.style.width = "100%";
-  if (pct)     pct.textContent = "100%";
-}
-
-function showError(msg) {
-  stopLoading();
-  content.innerHTML = `
-    <div class="error-card">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <div>${msg}</div>
-    </div>`;
+  progressInterval = null; messageInterval = null;
+  const bar = document.getElementById("loadingBarFill");
+  const pct = document.getElementById("loadingPercent");
+  if (bar) bar.style.width = "100%";
+  if (pct) pct.textContent = "100%";
 }
 
 // ── Run audit ──
-async function runAudit() {
-  let url = urlInput.value.trim();
-  if (!url) { urlInput.focus(); return; }
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    url = "https://" + url;
-  }
+async function runAudit(projectId) {
+  const project = getProject(projectId);
+  if (!project) return;
 
-  auditBtn.disabled = true;
+  const input = document.getElementById("auditUrlInput");
+  let url = (input?.value || "").trim();
+  if (!url) { input?.focus(); return; }
+  if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
+
+  const btn = document.getElementById("auditSubmitBtn");
+  if (btn) btn.disabled = true;
   showLoading();
 
-  const response = await fetch("/audit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
-  });
-
-  if (!response.ok) {
-    auditBtn.disabled = false;
-    showError("Server error. Please try again.");
-    return;
-  }
-
-  const reader  = response.body.getReader();
-  const decoder = new TextDecoder();
-  let streamBuf = "";
-  let rawText   = "";
   let analyticsTools = null;
+  let rawText = "";
 
   try {
+    const response = await fetch("/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!response.ok) { stopLoading(); showError("Server error. Please try again."); return; }
+
+    const reader  = response.body.getReader();
+    const decoder = new TextDecoder();
+    let streamBuf = "";
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -1089,59 +1238,72 @@ async function runAudit() {
           stopLoading();
           const sections = parseSections(rawText);
           if (analyticsTools) sections.analyticsTools = analyticsTools;
-          const id = Date.now();
-          const audit = { id, url, sections };
-          audits.unshift(audit);
-          if (audits.length > 50) audits = audits.slice(0, 50);
-          saveAudits();
-          currentId = id;
-          renderAuditView(audit);
-          renderSidebar();
+          const auditId = Date.now();
+          const audit = { id: auditId, url, sections };
+          const proj = getProject(projectId);
+          if (proj) {
+            proj.audits.unshift(audit);
+            saveProjects();
+            currentAuditId = auditId;
+            renderSidebar();
+            renderAuditResultView(proj, audit);
+          }
         } else if (event.type === "error") {
+          stopLoading();
           showError(event.message);
         }
       }
     }
-  } finally {
-    auditBtn.disabled = false;
+  } catch (err) {
     stopLoading();
+    showError(err.message || "An unexpected error occurred.");
   }
 }
 
-// ── New audit ──
-newAuditBtn.addEventListener("click", () => {
-  currentId = null;
-  urlInput.value = "";
-  urlInput.focus();
+function showError(msg) {
+  content.innerHTML = `
+    <div style="padding:28px">
+      <div class="error-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div>${msg}</div>
+      </div>
+    </div>`;
+}
+
+// ── Empty state ──
+function showEmptyState() {
   content.innerHTML = `
     <div class="empty-state">
       <div class="empty-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#110fd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
         </svg>
       </div>
-      <h2>Audit your website</h2>
-      <p>Enter a business URL above to run a full 12-point CRO audit and get a conversion score.</p>
+      <h2>No project selected</h2>
+      <p>Create a project to start auditing landing pages.</p>
+      <button class="btn-primary" onclick="document.getElementById('newProjectBtn').click()">New Project</button>
     </div>`;
-  renderSidebar();
-});
-
-auditBtn.addEventListener("click", runAudit);
-urlInput.addEventListener("keydown", e => { if (e.key === "Enter") runAudit(); });
+}
 
 // ── Beta modal ──
-function dismissModal() {
+function dismissBetaModal() {
   document.getElementById("betaModal").style.display = "none";
   localStorage.setItem("saasy_beta_seen", "1");
 }
 
 // ── Init ──
-loadAudits();
+loadProjects();
 renderSidebar();
 if (!localStorage.getItem("saasy_beta_seen")) {
   document.getElementById("betaModal").style.display = "flex";
 }
-if (audits.length > 0) showAudit(audits[0].id);
+if (projects.length > 0) {
+  openProject(projects[0].id);
+} else {
+  showEmptyState();
+}
 </script>
 </body>
 </html>
