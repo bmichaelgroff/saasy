@@ -703,7 +703,7 @@ function loadProjects() {
   catch { projects = []; }
 }
 function saveProjects() { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); }
-function getProject(id) { return projects.find(p => p.id === id); }
+function getProject(id) { return projects.find(p => p.id == id); }
 
 // ── DOM refs ──
 const content       = document.getElementById("content");
@@ -872,7 +872,7 @@ function showProjectView(id) {
 function openAudit(projectId, auditId) {
   const project = getProject(projectId);
   if (!project) return;
-  const audit = project.audits.find(a => a.id === auditId);
+  const audit = project.audits.find(a => a.id == auditId);
   if (!audit) return;
   currentAuditId = auditId;
   renderAuditResultView(project, audit);
@@ -1129,7 +1129,7 @@ function countPasses(sections) {
 function toggleCheck(projectId, auditId, index, checkbox) {
   const project = getProject(projectId);
   if (!project) return;
-  const audit = project.audits.find(a => a.id === auditId);
+  const audit = project.audits.find(a => a.id == auditId);
   if (!audit) return;
   const checked = new Set(audit.sections.checkedItems || []);
   if (checkbox.checked) checked.add(index); else checked.delete(index);
