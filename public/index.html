@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1191,6 +1192,10 @@ function renderAuditResultView(project, audit) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           Back
         </button>
+        <button class="btn btn-secondary btn-sm" onclick="exportAuditPDF(${project.id}, ${audit.id})">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export PDF
+        </button>
         <button class="btn btn-primary" onclick="showAuditInput=true;renderLandingPagesListView(${project.id})">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New Landing Page
@@ -1580,6 +1585,179 @@ async function runAudit(projectId) {
     }
   } catch (err) { showError(err.message || "An unexpected error occurred."); }
   finally { stopLoading(); if (btn) btn.disabled = false; }
+}
+
+// ─── PDF Export ───
+function exportAuditPDF(projectId, auditId) {
+  const proj = getProject(projectId);
+  const audit = proj?.audits.find(a => a.id == auditId);
+  if (!audit) return;
+
+  const el = document.createElement("div");
+  el.style.cssText = "position:fixed;left:-9999px;top:0;width:760px;background:#fff;font-family:Inter,sans-serif;color:#101828;padding:56px;box-sizing:border-box;font-size:14px;line-height:1.6;";
+  el.innerHTML = buildPdfHtml(proj, audit);
+  document.body.appendChild(el);
+
+  const domain = audit.url.replace(/^https?:\/\//,"").replace(/[^a-z0-9]/gi,"-").replace(/-+$/,"");
+  html2pdf()
+    .set({
+      margin: 0,
+      filename: `${domain}-cro-audit.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+      jsPDF: { unit: "px", format: "a4", orientation: "portrait" },
+    })
+    .from(el)
+    .save()
+    .finally(() => document.body.removeChild(el));
+}
+
+function buildPdfHtml(proj, audit) {
+  const s = audit.sections;
+  const score = Math.round(s.score || 0);
+  const grade = s.grade || "";
+  const auditDate = new Date(audit.id).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+  const displayUrl = audit.url.replace(/^https?:\/\//,"").replace(/\/$/,"");
+
+  const gradeColors = { Poor:"#B42318", Ok:"#B54708", Good:"#110fd6", Excellent:"#027A48" };
+  const gradeColor = gradeColors[grade] || "#344054";
+
+  // ── Header ──
+  const header = `
+    <div style="border-bottom:2px solid #EAECF0;padding-bottom:24px;margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#98A2B3;margin-bottom:6px;">CRO Audit Report</div>
+      <div style="font-size:24px;font-weight:700;color:#101828;margin-bottom:4px;">${displayUrl}</div>
+      <div style="font-size:13px;color:#667085;">${auditDate}</div>
+    </div>`;
+
+  // ── CRO Score ──
+  const scoreSection = `
+    <div style="margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#98A2B3;margin-bottom:12px;">CRO Score</div>
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:8px;">
+        <div style="font-size:56px;font-weight:700;line-height:1;color:#101828;">${score}</div>
+        <div style="font-size:20px;font-weight:600;color:${gradeColor};">${grade}</div>
+        <div style="font-size:14px;color:#667085;">out of 100</div>
+      </div>
+      ${s.gradeDescription ? `<div style="font-size:14px;color:#475467;line-height:1.6;max-width:560px;">${s.gradeDescription}</div>` : ""}
+    </div>`;
+
+  // ── Tools Installed ──
+  const LOGOS = {
+    "Google Analytics 4": "/ga4-logo.png",
+    "Google Tag Manager": "/google-tag-manager-logo.jpg",
+    "Mida.so": "/mida-logo.jpeg",
+    "Microsoft Clarity": "/microsoft-clarity-logo.jpeg",
+  };
+  const toolRows = (s.analyticsTools || []).map(t => {
+    const logo = LOGOS[t.name]
+      ? `<img src="${LOGOS[t.name]}" style="width:20px;height:20px;border-radius:4px;object-fit:contain;flex-shrink:0;" />`
+      : `<div style="width:20px;height:20px;border-radius:4px;background:#F2F4F7;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#475467;flex-shrink:0;">${t.name[0]}</div>`;
+    const statusColor = t.detected ? "#027A48" : "#B42318";
+    const statusBg = t.detected ? "#ECFDF3" : "#FEF3F2";
+    const statusText = t.detected ? "Installed" : "Not Installed";
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F2F4F7;">
+      <div style="display:flex;align-items:center;gap:10px;">${logo}<span style="font-size:13px;font-weight:500;color:#344054;">${t.name}</span></div>
+      <span style="font-size:12px;font-weight:500;padding:2px 10px;border-radius:20px;background:${statusBg};color:${statusColor};">${statusText}</span>
+    </div>`;
+  }).join("");
+
+  const toolsSection = toolRows ? `
+    <div style="margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#98A2B3;margin-bottom:12px;">Tools Installed</div>
+      ${toolRows}
+    </div>` : "";
+
+  // ── Action Items ──
+  const actionRows = (s.actions || []).map((item, i) =>
+    `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #F2F4F7;">
+      <span style="font-size:13px;font-weight:600;color:#98A2B3;flex-shrink:0;min-width:18px;">${i+1}.</span>
+      <span style="font-size:14px;color:#344054;">${item}</span>
+    </div>`
+  ).join("");
+
+  const actionsSection = actionRows ? `
+    <div style="margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#98A2B3;margin-bottom:12px;">Action Items</div>
+      ${actionRows}
+    </div>` : "";
+
+  // ── A/B Test Recommendations ──
+  let abSection = "";
+  if (s.abTesting) {
+    const cleaned = s.abTesting.replace(/VERDICT:\s*PASS/gi,"").trim();
+    const abItems = [];
+    for (const part of cleaned.split(/\n(?=\d+\.\s)/)) {
+      const trimmed = part.trim();
+      if (!trimmed) continue;
+      const lines = trimmed.split("\n").map(l => l.trim()).filter(Boolean);
+      const title = lines[0].replace(/^\d+\.\s*/,"").replace(/\*\*/g,"");
+      const body = lines.slice(1).join(" ").replace(/\*\*/g,"");
+      if (title) abItems.push({ title, body });
+    }
+    if (abItems.length) {
+      const abRows = abItems.map((item, i) => {
+        const ci = item.title.indexOf(":");
+        const bold = ci !== -1 ? item.title.slice(0, ci+1) : item.title;
+        const rest = ci !== -1 ? item.title.slice(ci+1).trim() : "";
+        return `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #F2F4F7;">
+          <span style="font-size:13px;font-weight:600;color:#98A2B3;flex-shrink:0;min-width:18px;">${i+1}.</span>
+          <div>
+            <div style="font-size:14px;color:#344054;"><strong>${bold}</strong>${rest ? " " + rest : ""}</div>
+            ${item.body ? `<div style="font-size:13px;color:#667085;margin-top:4px;">${item.body}</div>` : ""}
+          </div>
+        </div>`;
+      }).join("");
+      abSection = `
+        <div style="margin-bottom:32px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#98A2B3;margin-bottom:12px;">A/B Test Recommendations</div>
+          ${abRows}
+        </div>`;
+    }
+  }
+
+  // ── Landing Page Breakdown (all tabs vertical) ──
+  const breakdownSections = SECTION_TABS.filter(t => s[t.key]).map(t => {
+    const verdict = extractVerdict(s[t.key]);
+    const badgeColor = verdict === "pass" ? "#027A48" : verdict === "fail" ? "#B42318" : null;
+    const badgeBg = verdict === "pass" ? "#ECFDF3" : verdict === "fail" ? "#FEF3F2" : null;
+    const badgeText = verdict === "pass" ? "Pass" : verdict === "fail" ? "Fail" : null;
+    const badge = badgeColor ? `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:${badgeBg};color:${badgeColor};margin-left:10px;">${badgeText}</span>` : "";
+    const textHtml = s[t.key]
+      .replace(/VERDICT:\s*(PASS|FAIL)/gi,"")
+      .split("\n")
+      .map(line => {
+        const l = line.trim();
+        if (!l) return "";
+        if (l.match(/^[-•*]\s+/) || l.match(/^\d+\.\s+/)) return `<li style="margin-bottom:4px;">${l.replace(/^[-•*]\s+/,"").replace(/^\d+\.\s+/,"").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")}</li>`;
+        return `<p style="margin-bottom:8px;">${l.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")}</p>`;
+      }).join("");
+
+    return `<div style="padding:20px 0;border-bottom:1px solid #EAECF0;">
+      <div style="display:flex;align-items:center;margin-bottom:10px;">
+        <span style="font-size:14px;font-weight:600;color:#101828;">${t.label}</span>${badge}
+      </div>
+      <div style="font-size:13px;color:#475467;line-height:1.7;">${textHtml}</div>
+    </div>`;
+  }).join("");
+
+  const breakdownSection = breakdownSections ? `
+    <div style="margin-bottom:40px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#98A2B3;margin-bottom:4px;">Landing Page Breakdown</div>
+      <div style="font-size:13px;color:#667085;margin-bottom:8px;">A breakdown of your landing page's conversion performance.</div>
+      ${breakdownSections}
+    </div>` : "";
+
+  // ── CTA Footer ──
+  const ctaFooter = `
+    <div style="text-align:center;padding-top:40px;border-top:2px solid #EAECF0;margin-top:8px;">
+      <img src="/michael-groff.png" style="width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;" />
+      <div style="font-size:18px;font-weight:700;color:#101828;margin-bottom:6px;">Want help implementing these recommendations?</div>
+      <div style="font-size:14px;color:#667085;margin-bottom:20px;">Book a free growth call to see how we can increase your conversion rate.</div>
+      <a href="https://www.fitrmedia.com/call" style="display:inline-block;background:#110fd6;color:#ffffff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Book a Growth Call</a>
+    </div>`;
+
+  return header + scoreSection + toolsSection + actionsSection + abSection + breakdownSection + ctaFooter;
 }
 
 // ─── Init ───
