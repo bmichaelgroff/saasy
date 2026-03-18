@@ -98,15 +98,10 @@ SECTION CRITERIA:
 11. Analytics & Tracking — evidence of GA4, GTM, Microsoft Clarity, or A/B testing tool (Mida.so) in page source
 12. A/B Test Recommendations — ALWAYS PASS — provide 2-3 specific, actionable A/B test ideas tailored to this site
 
-SCORING:
-Count PASS sections × 8.33 = total score.
-0–24.99 = Poor | 25–49.99 = Ok | 50–74.99 = Good | 75–100 = Excellent
-
-GRADE DESCRIPTIONS (customize to this specific site):
-- Poor: "Your landing page is missing many of the core elements required for strong conversions. [specific missing elements from this page]. Pages in this range typically lack clear messaging, strong CTAs, and trust signals. Significant improvements are needed before the page can effectively convert traffic into leads or customers. [one specific custom tip for this URL]"
-- Ok: "Your landing page has some foundational conversion elements, but important gaps remain. [specific gaps found]. [one specific custom tip for this URL]"
-- Good: "Your landing page includes many of the important components needed to convert visitors. [what this page does well]. [what this page doesn't do well]. With targeted optimization and testing, this page has strong potential to convert significantly more traffic."
-- Excellent: "Your landing page demonstrates strong conversion fundamentals. [what this page does well]. Pages in this range typically perform very well and have high conversion rates. If yours does not, audit your traffic acquisition strategies to ensure you're sending high-quality traffic."
+GRADE DESCRIPTION GUIDANCE (write 2-3 sentences specific to this site):
+- If few sections pass: highlight the most critical missing elements and what impact they have on conversions.
+- If roughly half pass: acknowledge what works and name the specific gaps holding the page back.
+- If most sections pass: confirm what the page does well and suggest one focused area for further improvement.
 
 Respond in EXACTLY this format. NO text before [ACTIONS]:
 
@@ -117,9 +112,7 @@ Respond in EXACTLY this format. NO text before [ACTIONS]:
 [/ACTIONS]
 
 [GRADE]
-SCORE: [X.XX]
-GRADE: [Poor/Ok/Good/Excellent]
-DESCRIPTION: [Custom 2-3 sentence description following the template above, specific to this site]
+DESCRIPTION: [Custom 2-3 sentence description following the guidance above, specific to this site]
 [/GRADE]
 
 [ANALYTICS]

@@ -1463,24 +1463,37 @@ function parseSections(raw) {
         .map(l => l.replace(/^[-\d.]+\s*/, "").trim()).filter(Boolean)
     : [];
   const gradeRaw = get("GRADE");
-  let score = 0, grade = "", gradeDescription = "";
+  let gradeDescription = "";
   if (gradeRaw) {
-    const sm = gradeRaw.match(/SCORE:\s*([\d.]+)/i);
-    const gm = gradeRaw.match(/GRADE:\s*(Poor|Ok|Good|Excellent)/i);
     const dm = gradeRaw.match(/DESCRIPTION:\s*([\s\S]+)/i);
-    if (sm) score = parseFloat(sm[1]);
-    if (gm) grade = gm[1];
     if (dm) gradeDescription = dm[1].trim();
   }
-  return {
-    actions, score, grade, gradeDescription,
-    analytics: get("ANALYTICS"), aboveFold: get("ABOVE_FOLD"),
-    ctaStructure: get("CTA_STRUCTURE"), messagingCopy: get("MESSAGING_COPY"),
-    productUnderstanding: get("PRODUCT_UNDERSTANDING"), socialProof: get("SOCIAL_PROOF"),
-    offerClarity: get("OFFER_CLARITY"), objectionHandling: get("OBJECTION_HANDLING"),
-    visualDesign: get("VISUAL_DESIGN"), conversionFriction: get("CONVERSION_FRICTION"),
-    mobileOpt: get("MOBILE_OPTIMIZATION"), abTesting: get("AB_TESTING"),
+  const sections = {
+    actions, gradeDescription,
+    analytics:            get("ANALYTICS"),
+    aboveFold:            get("ABOVE_FOLD"),
+    ctaStructure:         get("CTA_STRUCTURE"),
+    messagingCopy:        get("MESSAGING_COPY"),
+    productUnderstanding: get("PRODUCT_UNDERSTANDING"),
+    socialProof:          get("SOCIAL_PROOF"),
+    offerClarity:         get("OFFER_CLARITY"),
+    objectionHandling:    get("OBJECTION_HANDLING"),
+    visualDesign:         get("VISUAL_DESIGN"),
+    conversionFriction:   get("CONVERSION_FRICTION"),
+    mobileOpt:            get("MOBILE_OPTIMIZATION"),
+    abTesting:            get("AB_TESTING"),
   };
+  // Compute score and grade deterministically from PASS/FAIL verdicts
+  const ALL_KEYS = ["analytics","aboveFold","ctaStructure","messagingCopy",
+    "productUnderstanding","socialProof","offerClarity","objectionHandling",
+    "visualDesign","conversionFriction","mobileOpt","abTesting"];
+  const passes = ALL_KEYS.filter(k => sections[k]?.match(/VERDICT:\s*PASS/i)).length;
+  sections.score = Math.round((passes / 12) * 100);
+  sections.grade = sections.score >= 75 ? "Excellent"
+                 : sections.score >= 50 ? "Good"
+                 : sections.score >= 25 ? "Ok"
+                 : "Poor";
+  return sections;
 }
 
 function extractVerdict(text) {
