@@ -483,6 +483,43 @@
       display: flex; align-items: flex-start; gap: 10px; margin: 20px 32px;
     }
     .error-card svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ─── COMPARE TOGGLE ─── */
+    .audit-compare-toggle-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin-bottom:4px; }
+    .audit-compare-label { font-size:0.875rem; font-weight:500; color:var(--gray-700); }
+    .toggle-switch { position:relative; display:inline-flex; align-items:center; cursor:pointer; }
+    .toggle-switch input { display:none; }
+    .toggle-track { width:36px; height:20px; background:var(--gray-300); border-radius:10px; position:relative; transition:background 0.2s; }
+    .toggle-switch input:checked ~ .toggle-track { background:var(--primary); }
+    .toggle-thumb { position:absolute; top:2px; left:2px; width:16px; height:16px; background:#fff; border-radius:50%; box-shadow:var(--shadow-xs); transition:left 0.2s; }
+    .toggle-switch input:checked ~ .toggle-track .toggle-thumb { left:18px; }
+
+    /* ─── WINNER BANNER ─── */
+    .winner-banner { background:var(--success-50); border:1px solid #A9EFC5; border-radius:var(--r-lg); padding:16px 20px; display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+    .winner-banner-icon { width:36px; height:36px; border-radius:50%; background:#12B76A; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .winner-banner-icon svg { width:18px; height:18px; stroke:#fff; fill:none; }
+    .winner-banner-text { flex:1; min-width:0; }
+    .winner-banner-title { font-size:0.9375rem; font-weight:600; color:var(--success-700); }
+    .winner-banner-sub { font-size:0.8125rem; color:var(--gray-600); margin-top:2px; }
+    .winner-badge { font-size:0.75rem; font-weight:700; padding:4px 12px; border-radius:99px; background:#12B76A; color:#fff; white-space:nowrap; flex-shrink:0; }
+
+    /* ─── COMPARISON SCORES ─── */
+    .comparison-scores-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    .comparison-score-card { background:var(--gray-50); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px; text-align:center; }
+    .comparison-score-card.is-winner { background:var(--success-50); border-color:#A9EFC5; }
+    .comparison-score-label { font-size:0.75rem; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ─── WHY WINNER ─── */
+    .why-winner-section { margin-top:20px; }
+    .why-winner-title { font-size:0.9375rem; font-weight:600; color:var(--gray-900); margin-bottom:12px; }
+    .why-winner-list { display:flex; flex-direction:column; }
+    .why-winner-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+    .why-winner-row:last-child { border-bottom:none; }
+    .why-winner-dot { width:8px; height:8px; border-radius:50%; background:#12B76A; flex-shrink:0; }
+    .why-winner-row-text { font-size:0.875rem; color:var(--gray-700); }
+
+    /* ─── LOADING PHASE ─── */
+    .loading-phase { font-size:0.8125rem; color:var(--gray-500); margin-bottom:4px; text-align:center; min-height:1.2em; }
   </style>
 </head>
 <body>
@@ -569,6 +606,38 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" style="flex:1" onclick="closeNewProjectModal()">Cancel</button>
       <button class="btn btn-primary" style="flex:1" onclick="createProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── NEW AUDIT MODAL ─── -->
+<div class="modal-overlay" id="newAuditModal" style="display:none">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+    </div>
+    <h2>New Landing Page</h2>
+    <p class="modal-sub">Enter a URL to audit. Toggle comparison mode to audit two pages side by side.</p>
+    <div class="form-group">
+      <label for="newAuditUrl1">Landing Page URL</label>
+      <input id="newAuditUrl1" placeholder="https://example.com/landing" autocomplete="off" />
+    </div>
+    <div class="audit-compare-toggle-row">
+      <span class="audit-compare-label">Compare two landing pages</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="compareToggle" onchange="handleCompareToggle()" />
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+    </div>
+    <div class="form-group" id="url2Group" style="display:none;margin-top:16px">
+      <label for="newAuditUrl2">Compare Against</label>
+      <input id="newAuditUrl2" placeholder="https://example.com/variant" autocomplete="off" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeNewAuditModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" id="newAuditSubmitBtn" onclick="runAudit(currentProjectId)">Run Audit</button>
     </div>
   </div>
 </div>
@@ -676,15 +745,16 @@ const LOADING_MESSAGES = [
 
 // ─── State ───
 let projects = [];
-let currentProjectId = null;
-let currentAuditId   = null;
-let currentTab       = null;
-let currentPage      = 1;
-let showAuditInput   = false;
-let progressInterval = null;
-let messageInterval  = null;
-let currentProgress  = 0;
-let searchQuery      = "";
+let currentProjectId      = null;
+let currentAuditId        = null;
+let currentTab            = null;
+let currentComparisonTab  = "overview";
+let currentPage           = 1;
+let showAuditInput        = false;
+let progressInterval      = null;
+let messageInterval       = null;
+let currentProgress       = 0;
+let searchQuery           = "";
 
 // ─── Persistence ───
 function loadProjects() {
@@ -861,8 +931,8 @@ function createProject() {
   closeNewProjectModal();
   currentProjectId = project.id;
   currentAuditId = null;
-  showAuditInput = true;
   renderLandingPagesListView(project.id);
+  openNewAuditModal(project.id);
 }
 
 // ─── Delete ───
@@ -1068,11 +1138,13 @@ function renderLandingPagesListView(projectId) {
         <div class="empty-state">
           <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div>
           <div class="empty-title">No landing pages yet</div>
-          <div class="empty-body">Add a landing page URL above to run your first CRO audit.</div>
+          <div class="empty-body">Click New Landing Page to run your first CRO audit.</div>
         </div>
       </td></tr>`
     : pageAudits.map(audit => {
-        const urlDisplay = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+        const urlDisplay = audit.isComparison
+          ? `${audit.url.replace(/^https?:\/\//,"").replace(/\/$/,"")} vs ${audit.url2.replace(/^https?:\/\//,"").replace(/\/$/,"")}`
+          : audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
         const score = audit.sections?.score || null;
         return `
           <tr onclick="openAudit(${projectId}, ${audit.id})">
@@ -1099,33 +1171,17 @@ function renderLandingPagesListView(projectId) {
           </tr>`;
       }).join("");
 
-  const auditInputHtml = showAuditInput ? `
-    <div class="audit-input-section">
-      <div class="audit-input-inner">
-        <span class="audit-prefix">https://</span>
-        <input class="audit-url-input" id="auditUrlInput" placeholder="${project.domain}/your-page" autocomplete="off" />
-      </div>
-      <button class="btn btn-primary" id="auditSubmitBtn" onclick="runAudit(${projectId})">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        Audit Landing Page
-      </button>
-      <button class="btn btn-secondary btn-icon-only" onclick="showAuditInput=false;renderLandingPagesListView(${projectId})" title="Cancel">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </button>
-    </div>` : "";
-
   content.innerHTML = `
     <div class="topbar">
       <h1>${project.name}</h1>
       <div class="topbar-actions">
-        <button class="btn btn-primary" onclick="showAuditInput=true;renderLandingPagesListView(${projectId})">
+        <button class="btn btn-primary" onclick="openNewAuditModal(${projectId})">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New Landing Page
         </button>
       </div>
     </div>
     <div class="view-container">
-      ${auditInputHtml}
       <div class="table-card">
         <table>
           <thead>
@@ -1146,14 +1202,6 @@ function renderLandingPagesListView(projectId) {
         </div>` : ""}
       </div>
     </div>`;
-
-  if (showAuditInput) {
-    const inp = document.getElementById("auditUrlInput");
-    if (inp) {
-      inp.focus();
-      inp.addEventListener("keydown", e => { if (e.key === "Enter") runAudit(projectId); });
-    }
-  }
 }
 
 // ─── View 3: Audit result ───
@@ -1169,6 +1217,7 @@ function openAudit(projectId, auditId) {
 }
 
 function renderAuditResultView(project, audit) {
+  if (audit.isComparison) { renderComparisonResultView(project, audit); return; }
   const { sections } = audit;
   const score = Math.round(sections.score || 0);
   const grade = sections.grade || "";
@@ -1196,7 +1245,7 @@ function renderAuditResultView(project, audit) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Export PDF
         </button>
-        <button class="btn btn-primary" onclick="showAuditInput=true;renderLandingPagesListView(${project.id})">
+        <button class="btn btn-primary" onclick="openNewAuditModal(${project.id})">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New Landing Page
         </button>
@@ -1368,6 +1417,9 @@ function switchTab(key) {
   const audit = proj.audits.find(a => a.id == currentAuditId);
   if (!audit) return;
 
+  // Guard: comparison view manages its own tabs
+  if (audit.isComparison) { renderComparisonResultView(proj, audit); return; }
+
   // Update tab buttons
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.classList.toggle("active", btn.onclick.toString().includes(`'${key}'`));
@@ -1492,22 +1544,25 @@ function toggleCheck(projectId, auditId, index, checkbox) {
 }
 
 // ─── Loading ───
-function showLoading() {
+function showLoading(phaseLabel, startPct, endPct) {
+  const start   = startPct ?? 0;
+  const ceiling = endPct   ?? 94;
   content.innerHTML = `
     <div class="loading-state" style="height:100vh">
-      <div class="loading-label">Auditing landing page</div>
+      ${phaseLabel ? `<div class="loading-phase">${phaseLabel}</div>` : ""}
+      <div class="loading-label">${phaseLabel ? "Running CRO Audit" : "Auditing landing page"}</div>
       <div class="loading-bar-row">
-        <div class="loading-bar-wrap"><div class="loading-bar-fill" id="loadingBarFill"></div></div>
-        <div class="loading-percent" id="loadingPercent">0%</div>
+        <div class="loading-bar-wrap"><div class="loading-bar-fill" id="loadingBarFill" style="width:${start}%"></div></div>
+        <div class="loading-percent" id="loadingPercent">${start}%</div>
       </div>
       <div class="loading-message" id="loadingMessage">Fetching webpage...</div>
     </div>`;
-  currentProgress = 0;
+  currentProgress = start;
   let msgIdx = 0;
   progressInterval = setInterval(() => {
-    const remaining = 94 - currentProgress;
+    const remaining = ceiling - currentProgress;
     currentProgress += Math.max(remaining * 0.022, 0.08);
-    currentProgress = Math.min(currentProgress, 94);
+    currentProgress = Math.min(currentProgress, ceiling);
     const bar = document.getElementById("loadingBarFill");
     const pct = document.getElementById("loadingPercent");
     if (bar) bar.style.width = currentProgress + "%";
@@ -1538,53 +1593,91 @@ function showError(msg) {
 async function runAudit(projectId) {
   const project = getProject(projectId);
   if (!project) return;
-  const input = document.getElementById("auditUrlInput");
-  let url = (input?.value || "").trim();
-  if (!url) { input?.focus(); return; }
-  if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
 
-  const btn = document.getElementById("auditSubmitBtn");
-  if (btn) btn.disabled = true;
-  showLoading();
+  let url1 = (document.getElementById("newAuditUrl1")?.value || "").trim();
+  const isComparison = document.getElementById("compareToggle")?.checked || false;
+  let url2 = isComparison ? (document.getElementById("newAuditUrl2")?.value || "").trim() : null;
 
-  let analyticsTools = null, rawText = "";
+  if (!url1) { document.getElementById("newAuditUrl1")?.focus(); return; }
+  if (isComparison && !url2) { document.getElementById("newAuditUrl2")?.focus(); return; }
+  if (!url1.startsWith("http://") && !url1.startsWith("https://")) url1 = "https://" + url1;
+  if (url2 && !url2.startsWith("http://") && !url2.startsWith("https://")) url2 = "https://" + url2;
+
+  const submitBtn = document.getElementById("newAuditSubmitBtn");
+  if (submitBtn) submitBtn.disabled = true;
+  closeNewAuditModal();
 
   try {
-    const response = await fetch("/audit", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }),
-    });
-    if (!response.ok) { showError("Server error. Please try again."); return; }
+    const url1Short = url1.replace(/^https?:\/\//,"");
+    const phaseLabel1 = isComparison ? `Auditing Page 1 of 2: ${url1Short}` : null;
+    showLoading(phaseLabel1, 0, isComparison ? 47 : 94);
 
-    const reader = response.body.getReader(), decoder = new TextDecoder();
-    let streamBuf = "";
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      streamBuf += decoder.decode(value, { stream: true });
-      const lines = streamBuf.split("\n");
-      streamBuf = lines.pop();
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        let event; try { event = JSON.parse(line.slice(6)); } catch { continue; }
-        if (event.type === "analytics_data") { analyticsTools = event.tools; }
-        else if (event.type === "chunk") { rawText += event.text; }
-        else if (event.type === "done") {
-          stopLoading();
-          const sections = parseSections(rawText);
-          if (analyticsTools) sections.analyticsTools = analyticsTools;
-          const auditId = Date.now();
-          const proj = getProject(projectId);
-          if (proj) {
-            proj.audits.unshift({ id: auditId, url, sections });
-            saveProjects();
-            showAuditInput = false;
-            openAudit(projectId, auditId);
-          }
-        } else if (event.type === "error") { showError(event.message); }
+    const { sections: sections1, analyticsTools: tools1 } = await fetchAuditStream(url1);
+
+    if (isComparison) {
+      stopLoading();
+      const url2Short = url2.replace(/^https?:\/\//,"");
+      showLoading(`Auditing Page 2 of 2: ${url2Short}`, 50, 97);
+      const { sections: sections2, analyticsTools: tools2 } = await fetchAuditStream(url2);
+      stopLoading();
+
+      if (tools1) sections1.analyticsTools = tools1;
+      if (tools2) sections2.analyticsTools = tools2;
+
+      const auditId = Date.now();
+      const proj = getProject(projectId);
+      if (proj) {
+        proj.audits.unshift({ id: auditId, url: url1, sections: sections1, isComparison: true, url2, sections2 });
+        saveProjects();
+        currentComparisonTab = "overview";
+        openAudit(projectId, auditId);
+      }
+    } else {
+      stopLoading();
+      if (tools1) sections1.analyticsTools = tools1;
+      const auditId = Date.now();
+      const proj = getProject(projectId);
+      if (proj) {
+        proj.audits.unshift({ id: auditId, url: url1, sections: sections1 });
+        saveProjects();
+        openAudit(projectId, auditId);
       }
     }
-  } catch (err) { showError(err.message || "An unexpected error occurred."); }
-  finally { stopLoading(); if (btn) btn.disabled = false; }
+  } catch (err) {
+    showError(err.message || "An unexpected error occurred.");
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+}
+
+// ─── SSE stream helper ───
+async function fetchAuditStream(url) {
+  const response = await fetch("/audit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+  if (!response.ok) throw new Error("Server error. Please try again.");
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let streamBuf = "", rawText = "", analyticsTools = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    streamBuf += decoder.decode(value, { stream: true });
+    const lines = streamBuf.split("\n");
+    streamBuf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      let event; try { event = JSON.parse(line.slice(6)); } catch { continue; }
+      if (event.type === "analytics_data") analyticsTools = event.tools;
+      else if (event.type === "chunk") rawText += event.text;
+      else if (event.type === "error") throw new Error(event.message);
+    }
+  }
+  return { sections: parseSections(rawText), analyticsTools };
 }
 
 // ─── PDF Export ───
@@ -1758,6 +1851,251 @@ function buildPdfHtml(proj, audit) {
     </div>`;
 
   return header + scoreSection + toolsSection + actionsSection + abSection + breakdownSection + ctaFooter;
+}
+
+// ─── New Audit Modal ───
+function openNewAuditModal(projectId) {
+  currentProjectId = projectId;
+  const modal = document.getElementById("newAuditModal");
+  modal.style.display = "flex";
+  document.getElementById("newAuditUrl1").value = "";
+  document.getElementById("newAuditUrl2").value = "";
+  document.getElementById("compareToggle").checked = false;
+  document.getElementById("url2Group").style.display = "none";
+  const btn = document.getElementById("newAuditSubmitBtn");
+  if (btn) btn.disabled = false;
+  setTimeout(() => document.getElementById("newAuditUrl1").focus(), 50);
+}
+function closeNewAuditModal() {
+  document.getElementById("newAuditModal").style.display = "none";
+}
+function handleCompareToggle() {
+  const on = document.getElementById("compareToggle").checked;
+  document.getElementById("url2Group").style.display = on ? "block" : "none";
+  if (on) setTimeout(() => document.getElementById("newAuditUrl2").focus(), 50);
+}
+document.getElementById("newAuditModal").addEventListener("click", e => { if (e.target === e.currentTarget) closeNewAuditModal(); });
+document.getElementById("newAuditModal").addEventListener("keydown", e => { if (e.key === "Escape") closeNewAuditModal(); if (e.key === "Enter") runAudit(currentProjectId); });
+
+// ─── Comparison Result View ───
+function renderComparisonResultView(project, audit) {
+  const url1Short = audit.url.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  const url2Short = audit.url2.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  const tab1Label = url1Short.length > 24 ? url1Short.slice(0,22) + "…" : url1Short;
+  const tab2Label = url2Short.length > 24 ? url2Short.slice(0,22) + "…" : url2Short;
+
+  const compTabs = [
+    { key: "overview", label: "Overview" },
+    { key: "url1",     label: tab1Label  },
+    { key: "url2",     label: tab2Label  },
+  ];
+  const tabBtns = compTabs.map(t => `
+    <button class="tab-btn ${t.key === currentComparisonTab ? "active" : ""}"
+      onclick="switchComparisonTab('${t.key}', ${project.id}, ${audit.id})">${t.label}</button>
+  `).join("");
+
+  let tabBody = "";
+  if (currentComparisonTab === "overview") {
+    tabBody = renderComparisonOverviewTab(audit);
+  } else if (currentComparisonTab === "url1") {
+    tabBody = renderSingleAuditPanel(project, audit.id, audit.sections, audit.url);
+  } else {
+    tabBody = renderSingleAuditPanel(project, audit.id, audit.sections2, audit.url2);
+  }
+
+  content.innerHTML = `
+    <div class="topbar">
+      <h1>
+        <span style="color:var(--gray-400);font-weight:500;cursor:pointer" onclick="openProject(${project.id})">${project.name}</span>
+        <span style="color:var(--gray-300);margin:0 8px">/</span>
+        <span style="font-size:1rem">Comparison</span>
+      </h1>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openProject(${project.id})">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" onclick="openNewAuditModal(${project.id})">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Landing Page
+        </button>
+      </div>
+    </div>
+    <div class="audit-result-container">
+      <div class="breakdown-section" style="margin-top:20px">
+        <div class="tab-bar">${tabBtns}</div>
+        <div id="comparisonTabContent">${tabBody}</div>
+      </div>
+    </div>`;
+}
+
+function switchComparisonTab(key, projectId, auditId) {
+  currentComparisonTab = key;
+  currentTab = SECTION_TABS[0].key;
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const audit = proj.audits.find(a => a.id == auditId);
+  if (!audit) return;
+  renderComparisonResultView(proj, audit);
+}
+
+function renderComparisonOverviewTab(audit) {
+  const score1 = Math.round(audit.sections.score || 0);
+  const score2 = Math.round(audit.sections2.score || 0);
+  const grade1 = audit.sections.grade || "";
+  const grade2 = audit.sections2.grade || "";
+  const winnerIsUrl1 = score1 >= score2;
+  const winnerUrl   = winnerIsUrl1 ? audit.url : audit.url2;
+  const winnerScore = winnerIsUrl1 ? score1 : score2;
+  const loserScore  = winnerIsUrl1 ? score2 : score1;
+  const diff = winnerScore - loserScore;
+  const winnerShort = winnerUrl.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  const url1Short   = audit.url.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  const url2Short   = audit.url2.replace(/^https?:\/\//,"").replace(/\/$/,"");
+
+  const bannerHtml = `
+    <div class="winner-banner">
+      <div class="winner-banner-icon">
+        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="winner-banner-text">
+        <div class="winner-banner-title">${winnerShort} wins</div>
+        <div class="winner-banner-sub">Higher CRO score — ${winnerScore} vs ${loserScore}</div>
+      </div>
+      ${diff > 0 ? `<div class="winner-badge">+${diff} pts</div>` : ""}
+    </div>`;
+
+  const scoresHtml = `
+    <div class="comparison-scores-grid">
+      <div class="comparison-score-card ${winnerIsUrl1 ? "is-winner" : ""}">
+        <div class="comparison-score-label" title="${url1Short}">${url1Short}</div>
+        ${renderMiniGauge(score1, grade1)}
+      </div>
+      <div class="comparison-score-card ${!winnerIsUrl1 ? "is-winner" : ""}">
+        <div class="comparison-score-label" title="${url2Short}">${url2Short}</div>
+        ${renderMiniGauge(score2, grade2)}
+      </div>
+    </div>`;
+
+  const toolsHtml = `
+    <div class="result-grid-top" style="margin-bottom:20px">
+      <div class="result-card">
+        <div class="result-card-title" style="margin-bottom:12px;font-size:0.875rem">Tools — <span style="font-weight:400;color:var(--gray-500)">${url1Short}</span></div>
+        ${renderToolsInstalled(audit.sections.analyticsTools)}
+      </div>
+      <div class="result-card">
+        <div class="result-card-title" style="margin-bottom:12px;font-size:0.875rem">Tools — <span style="font-weight:400;color:var(--gray-500)">${url2Short}</span></div>
+        ${renderToolsInstalled(audit.sections2.analyticsTools)}
+      </div>
+    </div>`;
+
+  const whyHtml = renderWhyWinnerWins(audit, winnerIsUrl1);
+
+  return bannerHtml + scoresHtml + toolsHtml + whyHtml;
+}
+
+function renderMiniGauge(score, grade) {
+  const R = 50, cx = 64, cy = 68;
+  const totalLen = Math.PI * R;
+  const fillLen  = (score / 100) * totalLen;
+  const color    = gradeColor(grade);
+  const path     = `M ${cx-R},${cy} A ${R},${R} 0 0,1 ${cx+R},${cy}`;
+  return `
+    <svg viewBox="0 0 128 75" width="128" height="75" style="display:block;margin:0 auto">
+      <path d="${path}" fill="none" stroke="var(--gray-200)" stroke-width="10" stroke-linecap="round"/>
+      <path d="${path}" fill="none" stroke="var(--gray-800)" stroke-width="10" stroke-linecap="round"
+        stroke-dasharray="${fillLen} ${totalLen}"/>
+      <text x="${cx}" y="${cy - 2}" text-anchor="middle" font-family="Inter,sans-serif"
+        font-size="20" font-weight="700" fill="var(--gray-900)">${score}</text>
+      <text x="${cx}" y="${cy + 14}" text-anchor="middle" font-family="Inter,sans-serif"
+        font-size="11" font-weight="600" fill="${color}">${grade}</text>
+    </svg>`;
+}
+
+function renderWhyWinnerWins(audit, winnerIsUrl1) {
+  const winnerSections = winnerIsUrl1 ? audit.sections : audit.sections2;
+  const loserSections  = winnerIsUrl1 ? audit.sections2 : audit.sections;
+  const winnerUrl   = winnerIsUrl1 ? audit.url : audit.url2;
+  const winnerShort = winnerUrl.replace(/^https?:\/\//,"").replace(/\/$/,"");
+
+  const ALL_KEYS = ["analytics","aboveFold","ctaStructure","messagingCopy","productUnderstanding",
+    "socialProof","offerClarity","objectionHandling","visualDesign","conversionFriction","mobileOpt","abTesting"];
+  const KEY_LABELS = {
+    analytics:"Analytics & Tracking", aboveFold:"Above The Fold", ctaStructure:"CTAs",
+    messagingCopy:"Messaging & Copy", productUnderstanding:"Product Understanding",
+    socialProof:"Social Proof & Trust", offerClarity:"Offer Clarity",
+    objectionHandling:"Objection Handling", visualDesign:"Visual Design",
+    conversionFriction:"Conversion Friction", mobileOpt:"Mobile Optimization", abTesting:"A/B Testing",
+  };
+
+  const advantages = ALL_KEYS.filter(k =>
+    extractVerdict(winnerSections[k]) === "pass" && extractVerdict(loserSections[k]) === "fail"
+  );
+
+  if (!advantages.length) {
+    return `
+      <div class="why-winner-section">
+        <div class="why-winner-title">Why ${winnerShort} wins</div>
+        <p style="font-size:0.875rem;color:var(--gray-500)">Both pages pass and fail the same sections — the score difference comes from partial scoring within sections.</p>
+      </div>`;
+  }
+
+  return `
+    <div class="why-winner-section">
+      <div class="why-winner-title">Why ${winnerShort} wins</div>
+      <div class="why-winner-list">
+        ${advantages.map(k => `
+          <div class="why-winner-row">
+            <div class="why-winner-dot"></div>
+            <span class="why-winner-row-text">Passes <strong>${KEY_LABELS[k]}</strong></span>
+          </div>`).join("")}
+      </div>
+    </div>`;
+}
+
+function renderSingleAuditPanel(project, auditId, sections, url) {
+  const score     = Math.round(sections.score || 0);
+  const grade     = sections.grade || "";
+  const gaugeHtml = renderGauge(score, grade);
+  const toolsHtml = renderToolsInstalled(sections.analyticsTools);
+  const actionsHtml = renderActionItems(project.id, auditId, sections);
+  const abTestHtml  = renderAbTestCard(sections.abTesting);
+  const tabsHtml    = renderTabNav(sections, SECTION_TABS[0].key);
+  const urlShort    = url.replace(/^https?:\/\//,"").replace(/\/$/,"");
+
+  return `
+    <div class="result-grid-top">
+      <div class="result-card">
+        <div class="result-card-title">CRO Score</div>
+        <div class="result-card-sub">${score} out of 100</div>
+        <div class="gauge-wrap">
+          <span class="gauge-grade" style="color:${gradeColor(grade)}">${grade}</span>
+          ${gaugeHtml}
+        </div>
+        <div class="gauge-description">${sections.gradeDescription || ""}</div>
+      </div>
+      <div class="result-card">
+        <div class="result-card-title">Tools Installed</div>
+        ${toolsHtml}
+      </div>
+    </div>
+    <div class="result-grid-mid">
+      <div class="result-card">
+        <div class="result-card-title" style="margin-bottom:16px">Action Items</div>
+        ${actionsHtml}
+      </div>
+      <div class="result-card">
+        <div class="result-card-title" style="margin-bottom:16px">A/B Test Recommendations</div>
+        ${abTestHtml}
+      </div>
+    </div>
+    <div class="breakdown-section">
+      <div class="breakdown-header">
+        <div class="breakdown-title">Landing Page Breakdown</div>
+        <div class="breakdown-sub">${urlShort}</div>
+      </div>
+      ${tabsHtml}
+    </div>`;
 }
 
 // ─── Init ───
