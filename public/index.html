@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1699,23 +1698,37 @@ function exportAuditPDF(projectId, auditId) {
   const audit = proj?.audits.find(a => a.id == auditId);
   if (!audit) return;
 
-  const el = document.createElement("div");
-  el.style.cssText = "position:absolute;left:0;top:0;width:760px;background:#fff;opacity:0.001;pointer-events:none;z-index:-1;font-family:Inter,sans-serif;color:#101828;padding:56px;box-sizing:border-box;font-size:14px;line-height:1.6;";
-  el.innerHTML = buildPdfHtml(proj, audit);
-  document.body.appendChild(el);
+  const body = buildPdfHtml(proj, audit);
+  const title = audit.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
-  const domain = audit.url.replace(/^https?:\/\//,"").replace(/[^a-z0-9]/gi,"-").replace(/-+$/,"");
-  html2pdf()
-    .set({
-      margin: 0,
-      filename: `${domain}-cro-audit.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0, windowWidth: 760 },
-      jsPDF: { unit: "px", format: "a4", orientation: "portrait" },
-    })
-    .from(el)
-    .save()
-    .finally(() => document.body.removeChild(el));
+  const win = window.open("", "_blank");
+  win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>CRO Audit — ${title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #101828; background: #fff;
+      padding: 56px; max-width: 760px; margin: 0 auto;
+      font-size: 14px; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    @media print {
+      body { padding: 0; }
+      @page { margin: 0.6in; size: A4 portrait; }
+    }
+  </style>
+</head>
+<body>${body}</body>
+</html>`);
+  win.document.close();
+  win.document.fonts.ready.then(() => win.print());
 }
 
 function buildPdfHtml(proj, audit) {
